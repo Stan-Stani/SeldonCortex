@@ -218,3 +218,17 @@ footer {
    }
   }
 }
+
+@media (hover: none) {
+    .hover-desc-overlay {
+        opacity: 100%;
+    }
+
+
+    .hover-desc-overlay > span {
+        backdrop-filter: blur(5px);
+        border: 1px black solid;
+        padding: 3px;
+        border-radius: 5px;
+    }
+}
