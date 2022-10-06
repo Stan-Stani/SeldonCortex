@@ -1,3 +1,6 @@
+//TODO: Handle mobile My Work overlays
+//If page is scrolled down already on page reload then don't run animation for header shrink
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 
@@ -39,34 +42,52 @@ function CortexHome() {
         <CSSTransition in={isScrolled} appear={false} timeout={1000} classNames="shrink">
           <img id="logo" className="logo-initial" src="./assets/home/500px-Human_brain.jpg" />
         </CSSTransition>
-      <h1 id="title">Seldon Cortex</h1>
+      <h1 id="title" className='white-text'>Seldon Cortex</h1>
       </header>
       <div id="center-panels-container">
       <section className="panel">
-        <h2>My Work</h2>
+        <h2 className='white-text'>My Work</h2>
         <div id="grid">
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/bGLgzga" target="_blank" src="./assets/home/Kiwi Derp.png"> 
             <h3 style={{lineHeight: '.7em'}}>Kiwi Derp <br/><span className="hover-desc-overlay-subheading">Flappy Bird clone built with Phaser</span></h3>
           </HoverDescAnchor>
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNppPyq" target="_blank" src="./assets/home/React Pomodoro Clock Square.png">
-          <h3 style={{lineHeight: '.7em'}}>Pomodoro Timer <br/><span className="hover-desc-overlay-subheading">built with React</span></h3>
+            <h3 style={{lineHeight: '.7em'}}>Pomodoro Timer <br/><span className="hover-desc-overlay-subheading">built with React</span></h3>
           </HoverDescAnchor>
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/qBpaBBa" target="_blank" src="./assets/home/React Calculator Square.png">
-          <h3 style={{lineHeight: '.7em'}}>Calculator <br/><span className="hover-desc-overlay-subheading">built with React</span></h3>
+            <h3 style={{lineHeight: '.7em'}}>Calculator <br/><span className="hover-desc-overlay-subheading">built with React and Math.js</span></h3>
           </HoverDescAnchor>
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/WNXzzRx" target="_blank" src="./assets/home/React Drum Machine Square.png">
-          <h3 style={{lineHeight: '.7em'}}>Weird Sound Board <br/><span className="hover-desc-overlay-subheading">built with React</span></h3>
+            <h3 style={{lineHeight: '.7em'}}>Weird Sound Board <br/><span className="hover-desc-overlay-subheading">built with React</span></h3>
           </HoverDescAnchor>
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/mdqBRrw" target="_blank" src="./assets/home/React Markdown Previewer Square.png">
-          <h3 className="black-text" style={{lineHeight: '.7em'}}>Markdown Previewer <br/><span className="hover-desc-overlay-subheading">built with React</span></h3>
+            <h3 className="black-text" style={{lineHeight: '.7em'}}>Markdown Previewer <br/><span className="hover-desc-overlay-subheading">built with React and Marked</span></h3>
           </HoverDescAnchor>
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNYWLvq" target="_blank" src="./assets/home/React Quote Generator Square.png">
-          <h3 className="black-text">Random Quote Generator <br/><span className="hover-desc-overlay-subheading" style={{lineHeight: '.7em'}}>built with React</span></h3>
+            <h3 className="black-text">Random Quote Generator <br/><span className="hover-desc-overlay-subheading" style={{lineHeight: '.7em'}}>built with React</span></h3>
+          </HoverDescAnchor>
+          <HoverDescAnchor href="https://github.com/biometricPsychography" target="_blank" src="./assets/home/My Github.png">
           </HoverDescAnchor>
         </div>
       </section>
+      <section className="panel text-focus white-text">
+        <h2>About Me</h2>
+          <p>Hi! I'm Stan.</p>
+          <p>
+            I'm an aspiring full stack developer. A long time fantasy reader, my dreams
+            of magic left me bitter upon waking up to mundane reality. But
+            I've realized magic is real. Magic is coding.
+          </p>
+      </section>
+      <section className="panel text-focus white-text">
+        <h2>Contact Me</h2>
+        <p>
+          <a href='./email/email.html' target='_blank'>Email</a>
+          
+        </p>
+      </section>
       </div>
-      <footer>
+      <footer className='white-text'>
         <strong>S. G. Stanislaus Copyright  2022</strong> 
         <br />
         <a href="https://en.wikipedia.org/wiki/File:Human_brain.jpg">Header image source</a>, licensed under Creative Commons Attribution-Share Alike 3.0 Unported 
