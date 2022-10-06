@@ -146,6 +146,7 @@ shrink-appear {
 
 section {
   margin: 7.5px 0;
+  /* max-width here causes sections to remain centered horizontally*/
   max-width: 1100px;
 }
 
@@ -172,6 +173,10 @@ section {
 
 .black-text {
   color: black;
+}
+
+figure {
+    margin: 0;
 }
 
 .hover-desc-overlay {

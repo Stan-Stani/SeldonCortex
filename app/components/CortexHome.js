@@ -100,11 +100,12 @@ function HoverDescAnchor(props) {
 
   console.log('boom');
   return (
-    <div className="hover-desc-anchor">
+    <figure className="hover-desc-anchor">
 
-<a href={props.href} target={props.target ? props.target : '_blank'}><div className="hover-desc-overlay"><span className="hover-desc-text white-text">{props.children}</span></div></a>
-     <img src={props.src} />
-    </div>
+    
+    <figcaption><a href={props.href} target={props.target ? props.target : '_blank'}><div className="hover-desc-overlay"><span className="hover-desc-text white-text">{props.children}</span></div></a></figcaption>
+     <img src={props.src} alt=""/>
+    </figure>
   )
 }
 
