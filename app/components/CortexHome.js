@@ -15,7 +15,10 @@ const CSSTransition = require('react-transition-group').CSSTransition;
 function CortexHome() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [state, setState] = useState({
-    isBodyScrolledToTop: true
+    isBodyScrolledToTop: true,
+    blogPostHtml: {__html: "<p>Hmm... the blog's not loading for some reason... :(</p>"},
+    blogArr: [],
+    currentBlogPostIndex: 0
   });
 
   
@@ -32,6 +35,44 @@ function CortexHome() {
   
       
     })
+
+    // Initialize blog post reference object from .JSON
+    fetch('/blog/blog.json')
+      .then(res => {
+        return res.json()
+      .then(blogArr => {
+        let fileName = blogArr[0].fileName;
+        let relativePath = '/blog/' + fileName;
+        
+        fetch(relativePath)
+          .then(res => {
+            return res.text()
+          })
+          .then(post => {
+            setState((oldState => {
+              let newState = Object.assign({}, oldState);
+              newState.blogArr = blogArr;
+              let tagsString = blogArr[0].tags.join(' #');
+              if (tagsString !== '') tagsString = '#' + tagsString;
+              newState.blogPostHtml = {__html: post + '<hr><p>' + tagsString + '</p>'};
+              newState.currentBlogPostIndex = 0;
+              return newState;
+
+
+
+              
+
+              
+            }))
+
+            
+          })
+
+
+      })
+    })
+
+
   }, []);
   
   
@@ -72,12 +113,37 @@ function CortexHome() {
       </section>
       <section className="panel text-focus white-text">
         <h2>About Me</h2>
-          <p>Hi! I'm Stan.</p>
+          <p id="about-me-first-para">
+            <span>Stan</span>
+            <span>스탠</span>
+            <span>スタン</span>
+            <span>
+              <img className="finger-spelling-asl" src="/assets/home/S.png"/>
+              <img className="finger-spelling-asl" src="/assets/home/T.png"/>
+              <img className="finger-spelling-asl" src="/assets/home/A.png"/>
+              <img className="finger-spelling-asl" src="/assets/home/N.png"/>
+            </span>
+          </p>
           <p>
             I'm an aspiring full stack developer. A long time fantasy reader, my dreams
             of magic left me bitter upon waking up to mundane reality. But
             I've realized magic is real. Magic is coding.
           </p>
+      </section>
+      <section className="panel text-focus white-text">
+        <h2>Blog</h2>
+        <div id="blog-post" dangerouslySetInnerHTML={state.blogPostHtml} />
+        <div id="blog-nav">
+          <p>
+            {state.currentBlogPostIndex === 0 ?
+              null : <button id="see-next-blog-post" title="Next post" onClick={(event) => 
+              {getBlogPost(event, state, setState, state.currentBlogPostIndex - 1)}}>&lt;</button>}
+
+            {state.currentBlogPostIndex === state.blogArr.length - 1 ? 
+              null : <button id="see-previous-blog-post" title="Previous post" onClick={(event) => 
+              {getBlogPost(event, state, setState, state.currentBlogPostIndex + 1)}}>&gt;</button>}
+          </p>
+        </div>
       </section>
       <section className="panel text-focus white-text">
         <h2>Contact Me</h2>
@@ -98,7 +164,6 @@ function CortexHome() {
 
 function HoverDescAnchor(props) {
 
-  console.log('boom');
   return (
     <figure className="hover-desc-anchor">
 
@@ -107,6 +172,27 @@ function HoverDescAnchor(props) {
      <img src={props.src} alt=""/>
     </figure>
   )
+}
+
+function getBlogPost(event, state, setState, indexToGet) {
+  
+  fetch('/blog/' + state.blogArr[indexToGet].fileName)
+    .then(res => {
+      res.text()
+        .then(post => {
+          setState(oldState => {
+            let newState = Object.assign({}, oldState);
+            let tagsString = oldState.blogArr[indexToGet].tags.join(' #')
+            if (tagsString !== '') tagsString = '#' + tagsString;
+
+            newState.blogPostHtml = {__html: post + '<hr><p>' + tagsString + '</p>'};
+            newState.currentBlogPostIndex = indexToGet;
+    
+            return newState;
+          })
+        });
+    })
+  
 }
 
 // Exporting the component

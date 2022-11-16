@@ -47,8 +47,32 @@ body {
     width: 90%;
 }
 
+.finger-spelling-asl {
+  filter:invert();
+  vertical-align: bottom;
+  margin-left: 5px;
+}
+
+code {
+  background-color: #22423f;
+}
+
 a {
   color: #22ca46
+}
+
+button {
+  color: white;
+  font-weight: bolder;
+  font-family: sans-serif;
+  background-color: #177c2d;
+  border-radius: 10%;
+  border-color: #11e23e;
+  font-size: 16px;
+}
+
+button:hover {
+  cursor: pointer;
 }
 
 header {
@@ -222,6 +246,31 @@ figure {
 
 .text-focus p {
   max-width: 75ch;
+}
+
+#about-me-first-para {
+  font-size: 1.25em;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+#about-me-first-para > img {
+  display: inline-block;
+}
+
+#blog-post > h1 {
+  text-align: center;
+}
+
+hr {
+  color: black;
+  border: 1px solid;
+}
+
+#blog-nav > p {
+  text-align: center;
 }
 
 footer {
