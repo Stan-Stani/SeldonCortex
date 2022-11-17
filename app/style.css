@@ -250,13 +250,14 @@ figure {
 
 #about-me-first-para {
   font-size: 1.25em;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
   width: 100%;
+  text-align-last: justify;
+  text-align: justify;
+  word-break: keep-all;
 }
 
-#about-me-first-para > img {
+/* Prevent wrapping unless too small to fit in viewport */
+#finger-spelling-asl-word {
   display: inline-block;
 }
 

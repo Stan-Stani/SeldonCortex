@@ -114,10 +114,10 @@ function CortexHome() {
       <section className="panel text-focus white-text">
         <h2>About Me</h2>
           <p id="about-me-first-para">
-            <span>Stan</span>
-            <span>스탠</span>
-            <span>スタン</span>
-            <span>
+            <span>Stan </span>
+            <span>스탠 </span>
+            <span>スタン </span>
+            <span id="finger-spelling-asl-word">
               <img className="finger-spelling-asl" src="/assets/home/S.png"/>
               <img className="finger-spelling-asl" src="/assets/home/T.png"/>
               <img className="finger-spelling-asl" src="/assets/home/A.png"/>
