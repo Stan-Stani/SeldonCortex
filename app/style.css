@@ -216,11 +216,14 @@ figure {
   width: 100%;
 
   transition: backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
+  /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
+  transition: -webkit-backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
   opacity: 0;
 }
 
 .hover-desc-overlay:hover {
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   opacity: 100%;
 }
 
@@ -300,6 +303,7 @@ footer {
 
     .hover-desc-overlay > span {
         backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
         border: 1px black solid;
         padding: 3px;
         border-radius: 5px;
