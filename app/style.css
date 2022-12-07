@@ -215,9 +215,11 @@ figure {
   height: 100%;
   width: 100%;
 
+   /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
+  transition: -webkit-backdrop-filter .5s ease-in-out, opacity .5s ease-in-out; 
   transition: backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
-  /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
-  transition: -webkit-backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
+ 
+
   opacity: 0;
 }
 
