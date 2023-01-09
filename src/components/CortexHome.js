@@ -110,7 +110,7 @@ function CortexHome() {
           <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNYWLvq" target="_blank" src="./assets/home/React Quote Generator Square.png">
             <h3 className="black-text">Random Quote Generator <br/><span className="hover-desc-overlay-subheading" style={{lineHeight: '.7em'}}>built with React</span></h3>
           </HoverDescAnchor>
-          <HoverDescAnchor href="https://github.com/biometricPsychography" target="_blank" src="./assets/home/My Github.png">
+          <HoverDescAnchor href="https://github.com/Stan-Stani" target="_blank" src="./assets/home/My Github.png">
           </HoverDescAnchor>
         </div>
       </section>
