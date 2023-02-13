@@ -83,6 +83,7 @@ header {
   z-index: 1;
   flex-direction: row;
   background-color: #457570;
+  box-shadow: 0px 1px 6px 0px hsl(158, 5%, 24%);
   align-items: end;
   margin-bottom: 7.5px;
 }
