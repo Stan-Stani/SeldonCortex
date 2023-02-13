@@ -89,6 +89,9 @@ function CortexHome() {
       <section className="panel">
         <h2 className='white-text'>My Work</h2>
         <div id="grid">
+          <HoverDescAnchor href="https://job.seldoncortex.com" target="_blank" src="./assets/home/MERNT_ChinguV42G21.png"> 
+            <h3 className="black-text" style={{lineHeight: '.7em'}}>Job Tracker<br/><span className="hover-desc-overlay-subheading">Full-Stack MERN App</span></h3>
+          </HoverDescAnchor>
           <HoverDescAnchor href="https://stan-stani.github.io/free-code-camp-d3-js-heat-map/" target="_blank" src="./assets/home/D3 Heat-Map Square.png"> 
             <h3 style={{lineHeight: '.7em'}}>Heat-Map<br/><span className="hover-desc-overlay-subheading">built with D3</span></h3>
           </HoverDescAnchor>
