@@ -170,13 +170,16 @@ function CortexHome() {
 }
 
 function HoverDescAnchor(props) {
+  const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <figure className="hover-desc-anchor">
 
 
       <figcaption><a href={props.href} target={props.target ? props.target : '_blank'}><div className="hover-desc-overlay"><span className="hover-desc-text white-text">{props.children}</span></div></a></figcaption>
-      <img src={props.src} alt="" />
+      
+      <div className='img-placeholder' style={isLoaded ? {display: 'none'} : {}}></div>
+      <img style={isLoaded ? {} : { display: 'none' }} src={props.src} alt="" onLoad={() => setIsLoaded(true)}/>
     </figure>
   )
 }

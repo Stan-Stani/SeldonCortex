@@ -181,7 +181,7 @@ section {
   border-top: solid 5px black;
   border-left: solid 5px black;
   grid-template-columns: 1fr 1fr 1fr;
-  
+
 }
 
 .hover-desc-anchor {
@@ -234,12 +234,23 @@ figure {
   font-size: .5em;
 }
 
+ /* padding-bottom is percentage relative of width as per CSS specification: 
+  https://stackoverflow.com/questions/5445491/height-equal-to-dynamic-width-css-fluid-layout 
+  Prevents img from popping in and increasing grid height jerkily.*/
+#grid .img-placeholder {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-bottom: 100%;
+  border-right: solid 5px black;
+  border-bottom: solid 5px black;
+}
+
 #grid img {
   display: block;
   box-sizing: border-box;
   background-color: white;
   width: 100%;
-  height: 100%;
   border-right: solid 5px black;
   border-bottom: solid 5px black;
 }
