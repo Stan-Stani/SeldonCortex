@@ -2,7 +2,7 @@
 //If page is scrolled down already on page reload then don't run animation for header shrink
 
 const React = require('react');
-const ReactDOM = require('react-dom');
+ 
 
 const useState = React.useState;
 const useEffect = React.useEffect;
