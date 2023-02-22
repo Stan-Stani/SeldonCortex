@@ -24,7 +24,7 @@ function ProjectDetails(props) {
 
 
   return (
-    <div className='write-up' className="white-text">
+    <div className='write-up white-text'>
       {meat}
       <button onClick={() => props.onButtonClick()}>Back to projects</button>
     </div>
