@@ -366,7 +366,10 @@ function HoverDescAnchor(props) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <figure className="hover-desc-anchor" onClick={() => props.onClick()}>
+    <figure className="hover-desc-anchor" onClick={() => {
+      props.onClick();
+      window.scrollTo(0, 0);
+      }}>
 
 
       {/* <figcaption><a href={props.href} target={props.target ? props.target : '_blank'}><div className="hover-desc-overlay"><span className="hover-desc-text white-text">{props.children}</span></div></a></figcaption> */}
