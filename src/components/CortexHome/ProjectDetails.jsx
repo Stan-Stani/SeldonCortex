@@ -7,6 +7,8 @@ const useState = React.useState;
 function ProjectDetails(props) {
   const [projectDetail, setProjectDetail] = useState(null);
   const [isProjectToProjectTransition, setIsProjectToProjectTransition] = useState(false);
+  const [toggleIn, setToggleIn] = useState(false);
+
 
   if (props.portfolioPresentation !== 'grid' && props.portfolioPresentation !== projectDetail) {
     setProjectDetail(props.portfolioPresentation)
@@ -20,17 +22,19 @@ function ProjectDetails(props) {
       exitingProjectDetail = props.projectGridOrderArr[props.projectGridOrderObj['**maxIndex**']];
     }
   }
-  console.log({isProjectToProjectTransition});
-  console.log({exitingProjectDetail});
-  console.log({enteringProjectDetail: projectDetail});
+  console.log({ isProjectToProjectTransition });
+  console.log({ exitingProjectDetail });
+  console.log({ enteringProjectDetail: projectDetail });
   return (
     (isProjectToProjectTransition)
       ? (
         <>
-          <CSSTransition in={false} appear={false} enter={true} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
+          <CSSTransition in={!toggleIn} appear={false} enter={true} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
             <ProjectDetailsSubcomponent
+
+              setToggleIn={setToggleIn}
               projectDetailsDataObj={props.projectDetailsDataObj}
-              projectDetail={exitingProjectDetail}
+              projectDetail={!toggleIn ? projectDetail : exitingProjectDetail}
               setIsProjectToProjectTransition={setIsProjectToProjectTransition}
               setState={props.setState}
               projectGridOrderArr={props.projectGridOrderArr}
@@ -38,10 +42,12 @@ function ProjectDetails(props) {
               setProjectDetail={setProjectDetail}
             />
           </CSSTransition >
-          <CSSTransition in={props.portfolioPresentation === 'grid' ? false : true} appear={true} enter={false} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
+          <CSSTransition in={toggleIn} appear={true} enter={true} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
             <ProjectDetailsSubcomponent
+
+              setToggleIn={setToggleIn}
               projectDetailsDataObj={props.projectDetailsDataObj}
-              projectDetail={projectDetail}
+              projectDetail={toggleIn ? projectDetail : exitingProjectDetail}
               setIsProjectToProjectTransition={setIsProjectToProjectTransition}
               setState={props.setState}
               projectGridOrderArr={props.projectGridOrderArr}
@@ -55,6 +61,8 @@ function ProjectDetails(props) {
         <>
           <CSSTransition in={props.portfolioPresentation === 'grid' ? false : true} appear={false} enter={true} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
             <ProjectDetailsSubcomponent
+
+              setToggleIn={setToggleIn}
               projectDetailsDataObj={props.projectDetailsDataObj}
               projectDetail={projectDetail}
               setIsProjectToProjectTransition={setIsProjectToProjectTransition}
@@ -66,6 +74,8 @@ function ProjectDetails(props) {
           </CSSTransition >
           <CSSTransition in={false} appear={true} enter={false} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
             <ProjectDetailsSubcomponent
+
+              setToggleIn={setToggleIn}
               projectDetailsDataObj={props.projectDetailsDataObj}
               projectDetail={projectDetail}
               setIsProjectToProjectTransition={setIsProjectToProjectTransition}
@@ -103,6 +113,7 @@ function ProjectDetailsSubcomponent(props) {
                   props.setIsProjectToProjectTransition(false);
                   let newState = { ...oldState };
                   newState.portfolioPresentation = "grid";
+                  props.setToggleIn(false);
                   window.scrollTo(0, 0);
                   return newState;
                 })}>
@@ -117,6 +128,7 @@ function ProjectDetailsSubcomponent(props) {
                     nextPresentation = props.projectGridOrderArr[0];
                   }
                   props.setIsProjectToProjectTransition(true);
+                  props.setToggleIn(oldBool => !oldBool);
                   newState.portfolioPresentation = nextPresentation;
                   window.scrollTo(0, 0);
                   return newState;

@@ -180,16 +180,20 @@ shrink-appear {
 
 .slide-out-to-left {
   visibility: visible;
+  position: relative;
+}
+
+.slide-out-to-left-active {
+  visibility: visible;
+  position: relative;
   animation-name: slide-out-to-left;
   animation-duration: 1s;
   animation-fill-mode: forwards;
 }
 
 .slide-out-to-left-done {
-  animation-name: slide-out-to-left;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
   position: absolute;
+  visibility: hidden;
 }
 
 @keyframes slide-out-to-right {
@@ -205,16 +209,18 @@ shrink-appear {
 
 .slide-out-to-right {
   visibility: visible;
+}
+
+.slide-out-to-right-active {
+  visibility: visible;
   animation-name: slide-out-to-right;
   animation-duration: 1s;
   animation-fill-mode: forwards;
 }
 
 .slide-out-to-right-done {
-  animation-name: slide-out-to-right;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
   position: absolute;
+  visibility: hidden;
 }
 
 
@@ -231,6 +237,11 @@ shrink-appear {
 
 .slide-in-from-right {
   visibility: visible;
+  
+}
+
+.slide-in-from-right-active {
+  visibility: visible;
   animation-name: slide-in-from-right;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -239,9 +250,6 @@ shrink-appear {
 .slide-in-from-right-done {
   visibility: visible;
   position: initial;
-  animation-name: slide-in-from-right;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
 }
 
 @keyframes slide-in-from-left {
@@ -257,6 +265,10 @@ shrink-appear {
 
 .slide-in-from-left {
   visibility: visible;
+}
+
+.slide-in-from-left-active {
+  visibility: visible;
   animation-name: slide-in-from-left;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -265,9 +277,6 @@ shrink-appear {
 .slide-in-from-left-done {
   visibility: visible;
   position: initial;
-  animation-name: slide-in-from-left;
-  animation-duration: 1s;
-  animation-fill-mode: forwards;
 }
 
 #title {

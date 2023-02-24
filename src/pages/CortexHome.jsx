@@ -145,18 +145,24 @@ function CortexHome() {
 
 
   const slideLeftAnimationClassNames = {
+    appear: 'slide-in-from-right',
+    appearActive: 'slide-in-from-right-active',
+    appearDone: 'slide-in-from-right-done',
     enter: 'slide-in-from-right',
-    enterActive: 'slide-in-from-right',
+    enterActive: 'slide-in-from-right-active',
     enterDone: 'slide-in-from-right-done',
-    exitActive: 'slide-out-to-left',
+    exitActive: 'slide-out-to-left-active',
     exitDone: 'slide-out-to-left-done'
   };
 
   const slideRightAnimationClassNames = {
+    appear: 'slide-in-from-left',
+    appearActive: 'slide-in-from-left-active',
+    appearDone: 'slide-in-from-left-done',
     enter: 'slide-in-from-left',
-    enterActive: 'slide-in-from-left',
+    enterActive: 'slide-in-from-left-active',
     enterDone: 'slide-in-from-left-done',
-    exitActive: 'slide-out-to-right',
+    exitActive: 'slide-out-to-right-active',
     exitDone: 'slide-out-to-right-done'
   };
 
