@@ -1,33 +1,136 @@
-
-//If page is scrolled down already on page reload then don't run animation for header shrink
-
+import { CSSTransition } from 'react-transition-group';
 const React = require('react');
+const useState = React.useState;
 
 
 
 function ProjectDetails(props) {
+  const [projectDetail, setProjectDetail] = useState(null);
+  const [isProjectToProjectTransition, setIsProjectToProjectTransition] = useState(false);
 
-  let meat = "NULL";
-  switch (props.portfolioPresentation) {
-    case 'Booktown':
-      meat = <div>
-        <h2 id="booktown">Booktown</h2>
-        <ul>
-          <li>Used React, Redux, Chakra-UI, OpenLibrary API, Firebase, and TypeScript to create an eCommerce SPA website in a team of 5</li>
-          <li>Employed Scrum/Agile framework</li>
-          <li>My main job was to connect the API to all the product and search pages, as well as integrating the product pages with the cart</li>
-          <li>See the live app at: <a href="https://cheery-kataifi-feac13.netlify.app/">https://cheery-kataifi-feac13.netlify.app/</a></li>
-        </ul>
-      </div>
-      break;
+  if (props.portfolioPresentation !== 'grid' && props.portfolioPresentation !== projectDetail) {
+    setProjectDetail(props.portfolioPresentation)
   }
 
-
+  let exitingProjectDetail = null;
+  if (isProjectToProjectTransition) {
+    if (props.projectGridOrderObj[projectDetail] !== 0) {
+      exitingProjectDetail = props.projectGridOrderArr[props.projectGridOrderObj[projectDetail] - 1];
+    } else {
+      exitingProjectDetail = props.projectGridOrderArr[props.projectGridOrderObj['**maxIndex**']];
+    }
+  }
+  console.log({isProjectToProjectTransition});
+  console.log({exitingProjectDetail});
+  console.log({enteringProjectDetail: projectDetail});
   return (
-    <div className='write-up white-text'>
-      {meat}
-      <button onClick={() => props.onButtonClick()}>Back to projects</button>
-    </div>
+    (isProjectToProjectTransition)
+      ? (
+        <>
+          <CSSTransition in={false} appear={false} enter={true} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
+            <ProjectDetailsSubcomponent
+              projectDetailsDataObj={props.projectDetailsDataObj}
+              projectDetail={exitingProjectDetail}
+              setIsProjectToProjectTransition={setIsProjectToProjectTransition}
+              setState={props.setState}
+              projectGridOrderArr={props.projectGridOrderArr}
+              projectGridOrderObj={props.projectGridOrderObj}
+              setProjectDetail={setProjectDetail}
+            />
+          </CSSTransition >
+          <CSSTransition in={props.portfolioPresentation === 'grid' ? false : true} appear={true} enter={false} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
+            <ProjectDetailsSubcomponent
+              projectDetailsDataObj={props.projectDetailsDataObj}
+              projectDetail={projectDetail}
+              setIsProjectToProjectTransition={setIsProjectToProjectTransition}
+              setState={props.setState}
+              projectGridOrderArr={props.projectGridOrderArr}
+              projectGridOrderObj={props.projectGridOrderObj}
+              setProjectDetail={setProjectDetail}
+            />
+          </CSSTransition >
+        </>
+      )
+      : (
+        <>
+          <CSSTransition in={props.portfolioPresentation === 'grid' ? false : true} appear={false} enter={true} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
+            <ProjectDetailsSubcomponent
+              projectDetailsDataObj={props.projectDetailsDataObj}
+              projectDetail={projectDetail}
+              setIsProjectToProjectTransition={setIsProjectToProjectTransition}
+              setState={props.setState}
+              projectGridOrderArr={props.projectGridOrderArr}
+              projectGridOrderObj={props.projectGridOrderObj}
+              setProjectDetail={setProjectDetail}
+            />
+          </CSSTransition >
+          <CSSTransition in={false} appear={true} enter={false} timeout={1000} classNames={props.portfolioPresentation === 'grid' ? props.slideRightAnimationClassNames : props.slideLeftAnimationClassNames}>
+            <ProjectDetailsSubcomponent
+              projectDetailsDataObj={props.projectDetailsDataObj}
+              projectDetail={projectDetail}
+              setIsProjectToProjectTransition={setIsProjectToProjectTransition}
+              setState={props.setState}
+              projectGridOrderArr={props.projectGridOrderArr}
+              projectGridOrderObj={props.projectGridOrderObj}
+              setProjectDetail={setProjectDetail}
+            />
+          </CSSTransition >
+        </>
+      )
+  )
+
+
+}
+
+function ProjectDetailsSubcomponent(props) {
+  return (
+    (props.projectDetail)
+      ? (
+        <section className='panel portfolio-presentation-detailed-hidden' id='portfolio-presentation-detailed'>
+          <div className='white-text'>
+            {props.projectDetailsDataObj[props.projectDetail].heading}
+            <div className='write-up'>
+              <div className='write-up-grid'>
+
+
+                {props.projectDetailsDataObj[props.projectDetail].mainContent}
+
+
+
+              </div>
+              <div className='write-up-button-container'>
+                <button onClick={() => props.setState(oldState => {
+                  props.setIsProjectToProjectTransition(false);
+                  let newState = { ...oldState };
+                  newState.portfolioPresentation = "grid";
+                  window.scrollTo(0, 0);
+                  return newState;
+                })}>
+                  Back to projects
+                </button>
+                <button onClick={() => props.setState(oldState => {
+                  let newState = { ...oldState };
+                  let nextPresentation;
+                  if (props.projectGridOrderObj[props.projectDetail] !== props.projectGridOrderObj['**maxIndex**']) {
+                    nextPresentation = props.projectGridOrderArr[props.projectGridOrderObj[props.projectDetail] + 1];
+                  } else {
+                    nextPresentation = props.projectGridOrderArr[0];
+                  }
+                  props.setIsProjectToProjectTransition(true);
+                  newState.portfolioPresentation = nextPresentation;
+                  window.scrollTo(0, 0);
+                  return newState;
+                })}>
+                  Next project
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )
+      : (
+        null
+      )
   )
 }
 

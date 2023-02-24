@@ -1,13 +1,14 @@
-html, body {
-    font-family: monospace;
-    font-size: 1.3em;
-    color: black;
-    position: relative;
-    height: 100%;
-    overflow: auto;
-    margin: 0;
-    background-color: #4B807A;
-    
+html,
+body {
+  font-family: monospace;
+  font-size: 1.3em;
+  color: black;
+  position: relative;
+  height: 100%;
+  overflow: auto;
+  margin: 0;
+  background-color: #4B807A;
+  overflow-x: hidden;
 }
 
 body {
@@ -15,18 +16,18 @@ body {
   overflow: initial;
 }
 
-.portfolio-presentation-detailed {
+.portfolio-presentation-detailed-hidden {
   position: absolute;
   top: 0;
   visibility: hidden;
 }
 
 #react-root {
-    
-    position: relative;
-    text-align: left;
-    height: 100%;
-    user-select: none;
+
+  position: relative;
+  text-align: left;
+  height: 100%;
+  user-select: none;
 }
 
 
@@ -39,21 +40,21 @@ body {
 }
 
 #center-panels-container {
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 160px;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 160px;
 }
 
 .panel {
-    
-    width: 90%;
+
+  width: 90%;
 }
 
 .finger-spelling-asl {
-  filter:invert();
+  filter: invert();
   vertical-align: bottom;
   margin-left: 5px;
 }
@@ -99,7 +100,7 @@ header {
   margin-left: 10px;
   margin-bottom: 5px;
   border-radius: 33%;
-  
+
 
 }
 
@@ -131,7 +132,7 @@ shrink-appear {
 
 .shrink-appear-done {
   height: 75px;
-  
+
 }
 
 .shrink-enter {
@@ -203,9 +204,17 @@ shrink-appear {
 }
 
 .slide-out-to-right {
+  visibility: visible;
   animation-name: slide-out-to-right;
   animation-duration: 1s;
   animation-fill-mode: forwards;
+}
+
+.slide-out-to-right-done {
+  animation-name: slide-out-to-right;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  position: absolute;
 }
 
 
@@ -247,17 +256,23 @@ shrink-appear {
 
 
 .slide-in-from-left {
-
+  visibility: visible;
   animation-name: slide-in-from-left;
   animation-duration: 1s;
   animation-fill-mode: forwards;
 }
 
-
+.slide-in-from-left-done {
+  visibility: visible;
+  position: initial;
+  animation-name: slide-in-from-left;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
 
 #title {
   display: inline-block;
-  
+
   font-size: 50px;
   font-weight: bold;
   margin: 0;
@@ -295,7 +310,7 @@ section {
 }
 
 figure {
-    margin: 0;
+  margin: 0;
 }
 
 .hover-desc-overlay {
@@ -310,10 +325,10 @@ figure {
   height: 100%;
   width: 100%;
 
-   /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
-  transition: -webkit-backdrop-filter .5s ease-in-out, opacity .5s ease-in-out; 
+  /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
+  transition: -webkit-backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
   transition: backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
- 
+
 
   opacity: 0;
 }
@@ -328,7 +343,7 @@ figure {
   font-size: .5em;
 }
 
- /* padding-bottom is percentage relative of width as per CSS specification: 
+/* padding-bottom is percentage relative of width as per CSS specification: 
   https://stackoverflow.com/questions/5445491/height-equal-to-dynamic-width-css-fluid-layout 
   Prevents img from popping in and increasing grid height jerkily.*/
 #grid .img-placeholder {
@@ -350,7 +365,49 @@ figure {
 }
 
 .write-up {
-  border: greenyellow solid 5px;
+  box-sizing: border-box;
+  background-color: #356660;
+  padding: 5px 5px;
+  border: solid 5px black;
+}
+
+.write-up-grid {
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 10px;
+}
+
+.write-up img {
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 15px;
+  border: 3px solid black;
+}
+
+.try-one-three-grid-columns {
+  grid-column: 1 / 3;
+}
+
+.write-up p {
+  text-indent: 1em;
+}
+
+.write-up ul {
+  list-style-type: "» ";
+}
+
+.write-up li {
+  margin-top: 15px;
+}
+
+.write-up a {
+  word-break:break-all;
+}
+
+.write-up-button-container {
+  text-align: right;
 }
 
 .text-focus {
@@ -377,7 +434,7 @@ figure {
   display: inline-block;
 }
 
-#blog-post > h1 {
+#blog-post>h1 {
   text-align: center;
 }
 
@@ -386,39 +443,51 @@ hr {
   border: 1px solid;
 }
 
-#blog-nav > p {
+#blog-nav>p {
   text-align: center;
 }
 
 footer {
   background-color: #457570;
   text-align: center;
-  margin-top: 7.5px;;
+  margin-top: 7.5px;
+  ;
 }
 
 @media (max-width: 500px) {
-   #grid {
-      grid-template-columns: 1fr;
-   }
+
+
+  #grid {
+    grid-template-columns: 1fr;
+  }
+
+  .write-up-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .try-one-three-grid-columns {
+    grid-column: initial;
+  }
   
+
   @media (max-width: 340px) {
-   header {
+    header {
       flex-wrap: wrap;
-   }
+    }
   }
 }
 
 @media (hover: none) {
-    .hover-desc-overlay {
-        opacity: 100%;
-    }
+  .hover-desc-overlay {
+    opacity: 100%;
+  }
 
 
-    .hover-desc-overlay > span {
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        border: 1px black solid;
-        padding: 3px;
-        border-radius: 5px;
-    }
+  .hover-desc-overlay>span {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px black solid;
+    padding: 3px;
+    border-radius: 5px;
+  }
 }
