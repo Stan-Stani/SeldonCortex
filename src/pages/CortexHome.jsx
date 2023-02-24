@@ -132,7 +132,7 @@ const projectDetailsDataObj = {
         <img src="./assets/home/React Drum Machine Square.png" />
         <ul>
           <li>Used React.js to create a soundboard that uses old telephone tones<ul>
-            <li>Some of the tones are no longer used by modern user&#39;s phones</li>
+            <li>Some of the tones are no longer used by modern users&#39; phones</li>
           </ul>
           </li>
           <li>Pursued a very experimental avant-garde design reminiscent of a child&#39;s toy</li>
