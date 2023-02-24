@@ -72,7 +72,27 @@ button {
   font-weight: bolder;
   font-family: sans-serif;
   background-color: #177c2d;
-  border-radius: 10%;
+
+  border-color: #11e23e;
+  font-size: 16px;
+}
+
+button:hover {
+  color: white;
+  font-weight: bolder;
+  font-family: sans-serif;
+  background-color: #0cb831;
+
+  border-color: #11e23e;
+  font-size: 16px;
+}
+
+button:active {
+  color: white;
+  font-weight: bolder;
+  font-family: sans-serif;
+  background-color: #177c2d;
+
   border-color: #11e23e;
   font-size: 16px;
 }
@@ -407,12 +427,15 @@ figure {
   margin-top: 15px;
 }
 
-.project-details a {
-  word-break:break-all;
-}
+
 
 .project-details-button-container {
   text-align: right;
+}
+
+.project-details-button-container button {
+  font-size: 32px;
+  margin: 5px;
 }
 
 .text-focus {
@@ -474,6 +497,9 @@ footer {
     grid-column: initial;
   }
   
+  .project-details a {
+    word-break:break-all;
+  }
 
   @media (max-width: 340px) {
     header {

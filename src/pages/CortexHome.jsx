@@ -265,7 +265,7 @@ function CortexHome() {
               <HoverDescAnchor href="https://job.seldoncortex.com" target="_blank" src="./assets/home/MERNT_ChinguV42G21.png" onClick={() => handlePortfolioItemClick('Job Tracker')}>
                 <h3 className="black-text" style={{ lineHeight: '.7em' }}>Job Tracker<br /><span className="hover-desc-overlay-subheading">Full-Stack MERN App</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://stan-stani.github.io/free-code-camp-d3-js-heat-map/" target="_blank" src="./assets/home/D3 Heat-Map Square.png" onClick={() => handlePortfolioItemClick('Heat-Map')}>
+              <HoverDescAnchor href="https://stan-stani.github.io/free-code-camp-d3-js-heat-map/" target="_blank" src="./assets/home/D3 Heat-Map Square.png" onClick={() => handlePortfolioItemClick('Heat Map')}>
                 <h3 style={{ lineHeight: '.7em' }}>Heat-Map<br /><span className="hover-desc-overlay-subheading">built with D3</span></h3>
               </HoverDescAnchor>
               <HoverDescAnchor href="https://codepen.io/stan-stan/full/bGLgzga" target="_blank" src="./assets/home/Kiwi Derp.png" onClick={() => handlePortfolioItemClick('Kiwi Derp')}>
@@ -286,7 +286,7 @@ function CortexHome() {
               <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNYWLvq" target="_blank" src="./assets/home/React Quote Generator Square.png" onClick={() => handlePortfolioItemClick('Random Quote Generator')}>
                 <h3 className="black-text">Random Quote Generator <br /><span className="hover-desc-overlay-subheading" style={{ lineHeight: '.7em' }}>built with React</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://github.com/Stan-Stani" target="_blank" src="./assets/home/My Github.png">
+              <HoverDescAnchor href="https://github.com/Stan-Stani" target="_blank" src="./assets/home/My Github.png" onClick={() => window.open("https://github.com/Stan-Stani", "_blank")}>
               </HoverDescAnchor>
             </div>
           </section>

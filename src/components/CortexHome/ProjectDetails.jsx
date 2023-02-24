@@ -22,9 +22,7 @@ function ProjectDetails(props) {
       exitingProjectDetail = props.projectGridOrderArr[props.projectGridOrderObj['**maxIndex**']];
     }
   }
-  console.log({ isProjectToProjectTransition });
-  console.log({ exitingProjectDetail });
-  console.log({ enteringProjectDetail: projectDetail });
+
   return (
     (isProjectToProjectTransition)
       ? (
@@ -117,7 +115,7 @@ function ProjectDetailsSubcomponent(props) {
                   window.scrollTo(0, 0);
                   return newState;
                 })}>
-                  Back to projects
+                  Back to main menu
                 </button>
                 <button onClick={() => props.setState(oldState => {
                   let newState = { ...oldState };
