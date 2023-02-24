@@ -1,4 +1,5 @@
 import { CSSTransition } from 'react-transition-group';
+
 const React = require('react');
 const useState = React.useState;
 

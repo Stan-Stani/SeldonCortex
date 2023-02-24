@@ -2,6 +2,31 @@
 //If page is scrolled down already on page reload then don't run animation for header shrink
 import ProjectDetails from '../components/CortexHome/ProjectDetails';
 import { CSSTransition } from 'react-transition-group';
+
+const imagesToPreload = [
+  "./assets/home/eCommerce_ChinguV42G19.png",
+  "./assets/home/ProjectDetails/Booktown/booktown-search-results.png",
+  "./assets/home/ProjectDetails/Booktown/booktown-product-page.png",
+  "./assets/home/ProjectDetails/Booktown/booktown-checkout.png",
+  "./assets/home/ProjectDetails/Job Tracker/job-tracker-landing.png",
+  "./assets/home/ProjectDetails/Job Tracker/job-tracker-login.png",
+  "./assets/home/ProjectDetails/Job Tracker/job-tracker-table-view.png",
+  "./assets/home/ProjectDetails/Heat Map/heat-map1.png",
+  "./assets/home/ProjectDetails/Heat Map/heat-map2.png",
+  "./assets/home/ProjectDetails/Heat Map/heat-map3.png",
+  "./assets/home/ProjectDetails/Heat Map/heat-map4.png",
+  "./assets/home/Kiwi Derp.png",
+  "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-difficulty.png",
+  "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-mainmenu.png",
+  "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-godmode.png",
+  "./assets/home/React Pomodoro Clock Square.png",
+  "./assets/home/React Calculator Square.png",
+  "./assets/home/React Drum Machine Square.png",
+  "./assets/home/React Markdown Previewer Square.png",
+  "./assets/home/React Quote Generator Square.png",
+]
+
+
 const React = require('react');
 const useState = React.useState;
 const useEffect = React.useEffect;
@@ -207,6 +232,12 @@ function CortexHome() {
           })
       })
 
+    // precache images for ProjectDetails component
+    for (const image of imagesToPreload) {
+      const imageElement = new Image();
+      imageElement.src = image;
+    }
+
 
   }, []);
 
@@ -369,7 +400,7 @@ function HoverDescAnchor(props) {
     <figure className="hover-desc-anchor" onClick={() => {
       props.onClick();
       window.scrollTo(0, 0);
-      }}>
+    }}>
 
 
       {/* <figcaption><a href={props.href} target={props.target ? props.target : '_blank'}><div className="hover-desc-overlay"><span className="hover-desc-text white-text">{props.children}</span></div></a></figcaption> */}
