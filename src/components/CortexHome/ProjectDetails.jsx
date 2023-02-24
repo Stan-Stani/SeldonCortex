@@ -99,8 +99,8 @@ function ProjectDetailsSubcomponent(props) {
         <section className='panel portfolio-presentation-detailed-hidden' id='portfolio-presentation-detailed'>
           <div className='white-text'>
             {props.projectDetailsDataObj[props.projectDetail].heading}
-            <div className='write-up'>
-              <div className='write-up-grid'>
+            <div className='project-details'>
+              <div className='project-details-grid'>
 
 
                 {props.projectDetailsDataObj[props.projectDetail].mainContent}
@@ -108,7 +108,7 @@ function ProjectDetailsSubcomponent(props) {
 
 
               </div>
-              <div className='write-up-button-container'>
+              <div className='project-details-button-container'>
                 <button onClick={() => props.setState(oldState => {
                   props.setIsProjectToProjectTransition(false);
                   let newState = { ...oldState };
