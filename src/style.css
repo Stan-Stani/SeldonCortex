@@ -77,10 +77,6 @@ button {
   font-size: 16px;
 }
 
-button:hover {
-  cursor: pointer;
-}
-
 header {
   top: 0;
   position: fixed;
