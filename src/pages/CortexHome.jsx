@@ -41,7 +41,7 @@ const projectDetailsDataObj = {
         <img className='try-one-three-grid-columns' src="./assets/home/ProjectDetails/Job Tracker/job-tracker-table-view.png" />
       </>
   },
-  'Heat-Map': {
+  'Heat Map': {
     heading: <h2 id="monthly-global-land-surface-temperature-heat-map">Monthly Global Land-Surface Temperature Heat-Map</h2>,
     mainContent:
       <>
@@ -57,10 +57,11 @@ const projectDetailsDataObj = {
         <img className='try-one-three-grid-columns' src="./assets/home/ProjectDetails/Heat Map/heat-map4.png" />
       </>
   },
-  'Kiwi-Derp': {
+  'Kiwi Derp': {
     heading: <h2 id="kiwi-derp">Kiwi Derp</h2>,
     mainContent:
       <>
+        <img src="./assets/home/Kiwi Derp.png" />
         <ul>
           <li>Used Phaser.js (JavaScript game framework) to create a Flappy Bird
             clone</li>
@@ -68,13 +69,79 @@ const projectDetailsDataObj = {
           <li>Saved score to browser LocalStorage API</li>
           <li>Added GodMode setting</li>
           <li>Hand crafted all assets</li>
+          <li>See the live app  <a href="https://codepen.io/stan-stan/full/bGLgzga" target="_blank">on Codepen</a></li>
+        </ul>
+        <img className='try-one-three-grid-columns' src="./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-difficulty.png" />
+        <img src="./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-mainmenu.png" />
+        <img src="./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-godmode.png" />
+      </>
+  },
+  'The Goldfruit Clock': {
+    heading: <h2 id="the-goldfruit-clock">The Goldfruit Clock</h2>,
+    mainContent:
+      <>
+        <img src="./assets/home/React Pomodoro Clock Square.png" />
+        <ul>
+          <li>Used React.js to create a Pomodoro timer</li>
+          <li>Implemented ability to set custom break and session length</li>
+          <li>See the live app  <a href="https://codepen.io/stan-stan/full/rNppPyq" target="_blank">on Codepen</a></li>
+        </ul>
+      </>
+  },
+  'Calculator': {
+    heading: <h2 id="calculator">Calculator</h2>,
+    mainContent:
+      <>
+        <img src="./assets/home/React Calculator Square.png" />
+        <ul>
+          <li>Used React.js and Math.js to create a calculator app</li>
+          <li>Put special work into selecting a pleasing palette</li>
+          <li>See the live app  <a href="https://codepen.io/stan-stan/full/qBpaBBa" target="_blank">on Codepen</a></li>
+        </ul>
+      </>
+  },
+  'Weird Soundboard': {
+    heading: <h2 id="weird-soundboard">Weird Soundboard</h2>,
+    mainContent:
+      <>
+        <img src="./assets/home/React Drum Machine Square.png" />
+        <ul>
+          <li>Used React.js to create a soundboard that uses old telephone tones<ul>
+            <li>Some of the tones are no longer used by modern user&#39;s phones</li>
+          </ul>
+          </li>
+          <li>Pursued a very experimental avant-garde design reminiscent of a child&#39;s toy</li>
+          <li>See the live app  <a href="https://codepen.io/stan-stan/full/WNXzzRx" target="_blank">on Codepen</a></li>
+        </ul>
+      </>
+  },
+  'Markdown Previewer': {
+    heading: <h2 id="markdown-previewer">Markdown Previewer</h2>,
+    mainContent:
+      <>
+        <img src="./assets/home/React Markdown Previewer Square.png" />
+        <ul>
+          <li>Used React and Marked to build a markdown previewer</li>
+          <li>See the live app  <a href="https://codepen.io/stan-stan/full/mdqBRrw" target="_blank">on Codepen</a></li>
+        </ul>
+      </>
+  },
+  'Random Quote Generator': {
+    heading: <h2 id="random-quote-generator">Random Quote Generator</h2>,
+    mainContent:
+      <>
+        <img src="./assets/home/React Quote Generator Square.png" />
+        <ul>
+          <li>Used React and a JSON file of quotes to create a Random Quote Generator</li>
+          <li>Employed React Transition Group to add the quote change animation</li>
+          <li>See the live app  <a href="https://codepen.io/stan-stan/full/rNYWLvq" target="_blank">on Codepen</a></li>
         </ul>
       </>
   }
 }
 
-const projectGridOrderArr = ['Booktown', 'Job Tracker', 'Heat-Map', 'Kiwi-Derp',
-  'The Goldfruit Clock', 'Calculator', 'Weird Sound Board', 'Markdown Previewer',
+const projectGridOrderArr = ['Booktown', 'Job Tracker', 'Heat Map', 'Kiwi Derp',
+  'The Goldfruit Clock', 'Calculator', 'Weird Soundboard', 'Markdown Previewer',
   'Random Quote Generator'];
 
 
@@ -201,22 +268,22 @@ function CortexHome() {
               <HoverDescAnchor href="https://stan-stani.github.io/free-code-camp-d3-js-heat-map/" target="_blank" src="./assets/home/D3 Heat-Map Square.png" onClick={() => handlePortfolioItemClick('Heat-Map')}>
                 <h3 style={{ lineHeight: '.7em' }}>Heat-Map<br /><span className="hover-desc-overlay-subheading">built with D3</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://codepen.io/stan-stan/full/bGLgzga" target="_blank" src="./assets/home/Kiwi Derp.png" onClick={() => handlePortfolioItemClick('Booktown')}>
+              <HoverDescAnchor href="https://codepen.io/stan-stan/full/bGLgzga" target="_blank" src="./assets/home/Kiwi Derp.png" onClick={() => handlePortfolioItemClick('Kiwi Derp')}>
                 <h3 style={{ lineHeight: '.7em' }}>Kiwi Derp <br /><span className="hover-desc-overlay-subheading">Flappy Bird clone built with Phaser</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNppPyq" target="_blank" src="./assets/home/React Pomodoro Clock Square.png" onClick={() => handlePortfolioItemClick('Booktown')}>
+              <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNppPyq" target="_blank" src="./assets/home/React Pomodoro Clock Square.png" onClick={() => handlePortfolioItemClick('The Goldfruit Clock')}>
                 <h3 style={{ lineHeight: '.7em' }}>Pomodoro Timer <br /><span className="hover-desc-overlay-subheading">built with React</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://codepen.io/stan-stan/full/qBpaBBa" target="_blank" src="./assets/home/React Calculator Square.png" onClick={() => handlePortfolioItemClick('Booktown')}>
+              <HoverDescAnchor href="https://codepen.io/stan-stan/full/qBpaBBa" target="_blank" src="./assets/home/React Calculator Square.png" onClick={() => handlePortfolioItemClick('Calculator')}>
                 <h3 style={{ lineHeight: '.7em' }}>Calculator <br /><span className="hover-desc-overlay-subheading">built with React and Math.js</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://codepen.io/stan-stan/full/WNXzzRx" target="_blank" src="./assets/home/React Drum Machine Square.png" onClick={() => handlePortfolioItemClick('Booktown')}>
-                <h3 style={{ lineHeight: '.7em' }}>Weird Sound Board <br /><span className="hover-desc-overlay-subheading">built with React</span></h3>
+              <HoverDescAnchor href="https://codepen.io/stan-stan/full/WNXzzRx" target="_blank" src="./assets/home/React Drum Machine Square.png" onClick={() => handlePortfolioItemClick('Weird Soundboard')}>
+                <h3 style={{ lineHeight: '.7em' }}>Weird Soundboard <br /><span className="hover-desc-overlay-subheading">built with React</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://codepen.io/stan-stan/full/mdqBRrw" target="_blank" src="./assets/home/React Markdown Previewer Square.png" onClick={() => handlePortfolioItemClick('Booktown')}>
+              <HoverDescAnchor href="https://codepen.io/stan-stan/full/mdqBRrw" target="_blank" src="./assets/home/React Markdown Previewer Square.png" onClick={() => handlePortfolioItemClick('Markdown Previewer')}>
                 <h3 className="black-text" style={{ lineHeight: '.7em' }}>Markdown Previewer <br /><span className="hover-desc-overlay-subheading">built with React and Marked</span></h3>
               </HoverDescAnchor>
-              <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNYWLvq" target="_blank" src="./assets/home/React Quote Generator Square.png" onClick={() => handlePortfolioItemClick('Booktown')}>
+              <HoverDescAnchor href="https://codepen.io/stan-stan/full/rNYWLvq" target="_blank" src="./assets/home/React Quote Generator Square.png" onClick={() => handlePortfolioItemClick('Random Quote Generator')}>
                 <h3 className="black-text">Random Quote Generator <br /><span className="hover-desc-overlay-subheading" style={{ lineHeight: '.7em' }}>built with React</span></h3>
               </HoverDescAnchor>
               <HoverDescAnchor href="https://github.com/Stan-Stani" target="_blank" src="./assets/home/My Github.png">
