@@ -82,6 +82,19 @@ const projectDetailsDataObj = {
         <img className='try-one-three-grid-columns' src="./assets/home/ProjectDetails/Heat Map/heat-map4.png" />
       </>
   },
+  'Choropleth': {
+    heading: <h2 id="choropleth">US College Education Choropleth</h2>,
+    mainContent:
+      <>
+        <img className="try-one-three-grid-columns" src="./assets/home/ProjectDetails/Choropleth/D3 Choropleth Big.png" />
+        <ul className='try-one-three-grid-columns'>
+          <li>Used the D3.js and TopoJSON libraries to render US states and counties</li>
+          <li>Applied colors to each county to correspond to the percentage of adults with bachelor's degrees</li>
+          <li>Adapted the custom Tooltip class from my heat-map project</li>
+          <li>See the live app at: <a href="https://stan-stani.github.io/D3-Choropleth/" target="_blank">https://stan-stani.github.io/D3-Choropleth/</a></li>
+        </ul>
+      </>
+  },
   'Kiwi Derp': {
     heading: <h2 id="kiwi-derp">Kiwi Derp</h2>,
     mainContent:
@@ -165,7 +178,7 @@ const projectDetailsDataObj = {
   }
 }
 
-const projectGridOrderArr = ['Booktown', 'Job Tracker', 'Heat Map', 'Kiwi Derp',
+const projectGridOrderArr = ['Booktown', 'Job Tracker', 'Heat Map', 'Choropleth', 'Kiwi Derp',
   'The Goldfruit Clock', 'Calculator', 'Weird Soundboard', 'Markdown Previewer',
   'Random Quote Generator'];
 
@@ -298,6 +311,9 @@ function CortexHome() {
               </HoverDescAnchor>
               <HoverDescAnchor href="https://stan-stani.github.io/free-code-camp-d3-js-heat-map/" target="_blank" src="./assets/home/D3 Heat-Map Square.png" onClick={() => handlePortfolioItemClick('Heat Map')}>
                 <h3 style={{ lineHeight: '.7em' }}>Heat-Map<br /><span className="hover-desc-overlay-subheading">built with D3</span></h3>
+              </HoverDescAnchor>
+              <HoverDescAnchor src="./assets/home/D3 Choropleth.png" onClick={() => handlePortfolioItemClick('Choropleth')}>
+                <h3 className="black-text" style={{ lineHeight: '.7em' }}>Choropleth<br /><span className="hover-desc-overlay-subheading">built with D3 and TopoJSON</span></h3>
               </HoverDescAnchor>
               <HoverDescAnchor href="https://codepen.io/stan-stan/full/bGLgzga" target="_blank" src="./assets/home/Kiwi Derp.png" onClick={() => handlePortfolioItemClick('Kiwi Derp')}>
                 <h3 style={{ lineHeight: '.7em' }}>Kiwi Derp <br /><span className="hover-desc-overlay-subheading">Flappy Bird clone built with Phaser</span></h3>
