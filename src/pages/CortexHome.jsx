@@ -15,6 +15,7 @@ const imagesToPreload = [
   "./assets/home/ProjectDetails/Heat Map/heat-map2.png",
   "./assets/home/ProjectDetails/Heat Map/heat-map3.png",
   "./assets/home/ProjectDetails/Heat Map/heat-map4.png",
+  "./assets/home/ProjectDetails/Choropleth/D3 Choropleth Big.png",
   "./assets/home/Kiwi Derp.png",
   "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-difficulty.png",
   "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-mainmenu.png",
