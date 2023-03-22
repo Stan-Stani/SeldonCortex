@@ -1,10 +1,14 @@
 [
-    {
-        "fileName": "11_16_2022.html",
-        "tags": ["fullstack","webdev","freeCodeCamp", "debugging", "vsCode"]
-    },
-    {
-        "fileName": "11_14_2022.html",
-        "tags": ["fullstack","webdev","freeCodeCamp"]
-    }
+  {
+    "fileName": "03-22-2023.html",
+    "tags": ["fullstack", "webdev", "autodidact", "career"]
+  },
+  {
+    "fileName": "11_16_2022.html",
+    "tags": ["fullstack", "webdev", "freeCodeCamp", "debugging", "vsCode"]
+  },
+  {
+    "fileName": "11_14_2022.html",
+    "tags": ["fullstack", "webdev", "freeCodeCamp"]
+  }
 ]
