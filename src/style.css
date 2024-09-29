@@ -471,7 +471,7 @@ hr {
   border: 1px solid;
 }
 
-#blog-nav>p {
+#blog-nav,.blog-nav>p {
   text-align: center;
 }
 

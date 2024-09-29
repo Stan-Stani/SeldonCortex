@@ -85,46 +85,9 @@ function CortexHome() {
       </header>
       <div id='center-panels-container'>
         <section className='panel text-focus white-text'>
-          <h2>Blog</h2>
+          <h2>Blog</h2> <BlogNav state={state} setState={setState} />
           <div id='blog-post' dangerouslySetInnerHTML={state.blogPostHtml} />
-          <div id='blog-nav'>
-            <p>
-              {state.currentBlogPostIndex === 0 ? null : (
-                <button
-                  id='see-next-blog-post'
-                  title='Next post'
-                  onClick={(event) => {
-                    getBlogPost(
-                      event,
-                      state,
-                      setState,
-                      state.currentBlogPostIndex - 1
-                    )
-                  }}
-                >
-                  &lt;
-                </button>
-              )}
-
-              {state.currentBlogPostIndex ===
-              state.blogArr.length - 1 ? null : (
-                <button
-                  id='see-previous-blog-post'
-                  title='Previous post'
-                  onClick={(event) => {
-                    getBlogPost(
-                      event,
-                      state,
-                      setState,
-                      state.currentBlogPostIndex + 1
-                    )
-                  }}
-                >
-                  &gt;
-                </button>
-              )}
-            </p>
-          </div>
+          <BlogNav state={state} setState={setState} />
         </section>
         <section className='panel text-focus white-text'>
           <h2>Contact Me</h2>
@@ -140,48 +103,6 @@ function CortexHome() {
         <br />
       </footer>
     </div>
-  )
-
-  function handlePortfolioItemClick(itemName) {
-    setState((oldState) => {
-      let newState = { ...oldState }
-      newState.portfolioPresentation = itemName
-      return newState
-    })
-  }
-}
-
-function HoverDescAnchor(props) {
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  return (
-    <figure
-      className='hover-desc-anchor'
-      onClick={() => {
-        props.onClick()
-        window.scrollTo(0, 0)
-      }}
-    >
-      {/* <figcaption><a href={props.href} target={props.target ? props.target : '_blank'}><div className="hover-desc-overlay"><span className="hover-desc-text white-text">{props.children}</span></div></a></figcaption> */}
-      <figcaption>
-        <a>
-          <div className='hover-desc-overlay'>
-            <span className='hover-desc-text white-text'>{props.children}</span>
-          </div>
-        </a>
-      </figcaption>
-
-      <div
-        className='img-placeholder'
-        style={isLoaded ? { display: "none" } : {}}
-      ></div>
-      <img
-        style={isLoaded ? {} : { display: "none" }}
-        src={props.src}
-        alt=''
-        onLoad={() => setIsLoaded(true)}
-      />
-    </figure>
   )
 }
 
@@ -202,6 +123,48 @@ function getBlogPost(event, state, setState, indexToGet) {
       })
     })
   })
+}
+
+function BlogNav({ state, setState }) {
+  return (
+    <div class='blog-nav'>
+      <p>
+        {state.currentBlogPostIndex === 0 ? null : (
+          <button
+            id='see-next-blog-post'
+            title='Next post'
+            onClick={(event) => {
+              getBlogPost(
+                event,
+                state,
+                setState,
+                state.currentBlogPostIndex - 1
+              )
+            }}
+          >
+            &lt;
+          </button>
+        )}
+
+        {state.currentBlogPostIndex === state.blogArr.length - 1 ? null : (
+          <button
+            id='see-previous-blog-post'
+            title='Previous post'
+            onClick={(event) => {
+              getBlogPost(
+                event,
+                state,
+                setState,
+                state.currentBlogPostIndex + 1
+              )
+            }}
+          >
+            &gt;
+          </button>
+        )}
+      </p>
+    </div>
+  )
 }
 
 // Exporting the component
