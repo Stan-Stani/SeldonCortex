@@ -185,7 +185,7 @@ const projectGridOrderArr = ['Booktown', 'Job Tracker', 'Heat Map', 'Choropleth'
 
 
 
-function CortexHome() {
+function CortexHomeOld() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [state, setState] = useState({
     isBodyScrolledToTop: true,
@@ -451,4 +451,4 @@ function getBlogPost(event, state, setState, indexToGet) {
 }
 
 // Exporting the component
-export default CortexHome;
+export default CortexHomeOld;

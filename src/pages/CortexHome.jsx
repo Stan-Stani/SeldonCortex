@@ -1,36 +1,12 @@
 //TODO: Handle mobile My Work overlays
 //If page is scrolled down already on page reload then don't run animation for header shrink
 
-const imagesToPreload = [
-  "./assets/home/eCommerce_ChinguV42G19.png",
-  "./assets/home/ProjectDetails/Booktown/booktown-search-results.png",
-  "./assets/home/ProjectDetails/Booktown/booktown-product-page.png",
-  "./assets/home/ProjectDetails/Booktown/booktown-checkout.png",
-  "./assets/home/ProjectDetails/Job Tracker/job-tracker-landing.png",
-  "./assets/home/ProjectDetails/Job Tracker/job-tracker-login.png",
-  "./assets/home/ProjectDetails/Job Tracker/job-tracker-table-view.png",
-  "./assets/home/ProjectDetails/Heat Map/heat-map1.png",
-  "./assets/home/ProjectDetails/Heat Map/heat-map2.png",
-  "./assets/home/ProjectDetails/Heat Map/heat-map3.png",
-  "./assets/home/ProjectDetails/Heat Map/heat-map4.png",
-  "./assets/home/ProjectDetails/Choropleth/D3 Choropleth Big.png",
-  "./assets/home/Kiwi Derp.png",
-  "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-difficulty.png",
-  "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-mainmenu.png",
-  "./assets/home/ProjectDetails/Kiwi Derp/kiwi-derp-godmode.png",
-  "./assets/home/React Pomodoro Clock Square.png",
-  "./assets/home/React Calculator Square.png",
-  "./assets/home/React Drum Machine Square.png",
-  "./assets/home/React Markdown Previewer Square.png",
-  "./assets/home/React Quote Generator Square.png",
-]
+import RouterContext from "../components/contexts/router/RouterContext"
 
-const React = require("react")
-const useState = React.useState
-const useEffect = React.useEffect
-const useRef = React.useRef
+const { useState, useEffect, useContext } = require("react")
 
 function CortexHome() {
+  const router = useContext(RouterContext)
   const [isScrolled, setIsScrolled] = useState(false)
   const [state, setState] = useState({
     isBodyScrolledToTop: true,
@@ -43,6 +19,10 @@ function CortexHome() {
   })
 
   useEffect(() => {
+    setTimeout(() => {
+      // router.push("/lol")
+      console.log("router push")
+    }, 5000)
     // Initialize blog post reference object from .JSON
     fetch("/blog/blog.json").then((res) => {
       return res.json().then((blogArr) => {
@@ -68,12 +48,6 @@ function CortexHome() {
           })
       })
     })
-
-    // precache images for ProjectDetails component
-    for (const image of imagesToPreload) {
-      const imageElement = new Image()
-      imageElement.src = image
-    }
   }, [])
 
   return (
@@ -127,7 +101,7 @@ function getBlogPost(event, state, setState, indexToGet) {
 
 function BlogNav({ state, setState }) {
   return (
-    <div class='blog-nav'>
+    <div className='blog-nav'>
       <p>
         {state.currentBlogPostIndex === 0 ? null : (
           <button
