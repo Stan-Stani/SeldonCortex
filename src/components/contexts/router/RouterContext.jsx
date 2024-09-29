@@ -4,7 +4,7 @@ import CortexHomeOld from "../../../pages/CortexHomeOld"
 
 const pagesDictionary = {
   "": CortexHome,
-  old: CortexHomeOld
+  about: CortexHomeOld,
 }
 
 const RouterContext = createContext({
@@ -25,19 +25,23 @@ export function RouterContextStateManager({ children }) {
   const [routeString, setRouteString] = useState(
     window.location.pathname.substring(1)
   )
-  console.log({ routeString })
+  console.log("bingo")
   const routerContextValue = {
     /** Start target with `'/'` for path to be considered relative to current origin. */
-    push: (routeString) => routerPush(routeString, (rs) => setRouteString(rs)),
+    push: (routeString) =>
+      routerPush(routeString, (rs) => setRouteString(rs.substring(1))),
   }
 
   if (typeof pagesDictionary[routeString] !== "function") {
-    routerPush("/", () => setRouteString("/"))
+    routerPush("/", () => setRouteString(""))
   }
 
+  console.log("providing value to routercontext")
+
+  const CurrentRouteComponent = pagesDictionary[routeString]
   return (
     <RouterContext.Provider value={routerContextValue}>
-      {pagesDictionary[routeString]()}
+      <CurrentRouteComponent />
     </RouterContext.Provider>
   )
 }

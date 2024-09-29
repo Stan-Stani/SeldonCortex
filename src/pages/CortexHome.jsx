@@ -1,13 +1,9 @@
-//TODO: Handle mobile My Work overlays
-//If page is scrolled down already on page reload then don't run animation for header shrink
-
 import RouterContext from "../components/contexts/router/RouterContext"
 
 const { useState, useEffect, useContext } = require("react")
 
 function CortexHome() {
   const router = useContext(RouterContext)
-  const [isScrolled, setIsScrolled] = useState(false)
   const [state, setState] = useState({
     isBodyScrolledToTop: true,
     blogPostHtml: {
@@ -19,10 +15,6 @@ function CortexHome() {
   })
 
   useEffect(() => {
-    setTimeout(() => {
-      // router.push("/lol")
-      console.log("router push")
-    }, 5000)
     // Initialize blog post reference object from .JSON
     fetch("/blog/blog.json").then((res) => {
       return res.json().then((blogArr) => {
@@ -69,6 +61,13 @@ function CortexHome() {
             <a href='./email/email.html' target='_blank'>
               Email
             </a>
+          </p>
+        </section>
+        <section className='panel text-focus white-text'>
+          <p>
+            <button onClick={() => router.push("/about")}>
+              <h2>About The Author</h2>
+            </button>
           </p>
         </section>
       </div>
