@@ -1,0 +1,18 @@
+# To enable this .htacess file to function
+# Add and uncomment the immediately
+# below line to `apache2.conf`.
+# AllowOverride All
+
+# Then you'll have to run
+# `sudo service apache2 restart`
+
+# The below block of code handles URL rewriting
+# for our React application. It ensures that
+# all routes are directed to index.html unless
+# the file or directory actually exists.
+# This functionality allows client-side routing.
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
