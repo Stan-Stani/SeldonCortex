@@ -18,7 +18,10 @@ const blogPath = "public/blog";
       const contentString = buffer.toString("utf8");
       const mkdwnString = marked.parse(contentString);
 
-      fs.writeFile(path.join(blogPath, path.basename(file)), mkdwnString);
+      fs.writeFile(
+        path.join(blogPath, path.basename(file, "md") + "html"),
+        mkdwnString
+      );
     }
   }
 })();
