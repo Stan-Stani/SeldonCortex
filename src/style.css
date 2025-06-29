@@ -466,6 +466,10 @@ figure {
   text-align: center;
 }
 
+#blog-post img {
+  width: 100%;
+}
+
 hr {
   color: black;
   border: 1px solid;
