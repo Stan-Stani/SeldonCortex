@@ -7,7 +7,7 @@ body {
   height: 100%;
   overflow: auto;
   margin: 0;
-  background-color: #4B807A;
+  background-color: #4b807a;
   overflow-x: hidden;
 }
 
@@ -23,15 +23,11 @@ body {
 }
 
 #react-root {
-
   position: relative;
   text-align: left;
   height: 100%;
   user-select: none;
 }
-
-
-
 
 #root-contained {
   display: flex;
@@ -49,7 +45,6 @@ body {
 }
 
 .panel {
-
   width: 90%;
 }
 
@@ -64,7 +59,7 @@ code {
 }
 
 a {
-  color: #22ca46
+  color: #22ca46;
 }
 
 button {
@@ -116,8 +111,6 @@ header {
   margin-left: 10px;
   margin-bottom: 5px;
   border-radius: 33%;
-
-
 }
 
 .logo-initial {
@@ -134,7 +127,6 @@ header {
   }
 }
 
-
 shrink-appear {
   height: 150px;
 }
@@ -148,7 +140,6 @@ shrink-appear {
 
 .shrink-appear-done {
   height: 75px;
-
 }
 
 .shrink-enter {
@@ -239,7 +230,6 @@ shrink-appear {
   visibility: hidden;
 }
 
-
 @keyframes slide-in-from-right {
   from {
     transform: translate3d(100vw, 0, 0);
@@ -250,10 +240,8 @@ shrink-appear {
   }
 }
 
-
 .slide-in-from-right {
   visibility: visible;
-  
 }
 
 .slide-in-from-right-active {
@@ -277,7 +265,6 @@ shrink-appear {
     transform: translate3d(0, 0, 0);
   }
 }
-
 
 .slide-in-from-left {
   visibility: visible;
@@ -315,7 +302,6 @@ section {
   border-top: solid 5px black;
   border-left: solid 5px black;
   grid-template-columns: 1fr 1fr 1fr;
-
 }
 
 .hover-desc-anchor {
@@ -351,9 +337,8 @@ figure {
   width: 100%;
 
   /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
-  transition: -webkit-backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
-  transition: backdrop-filter .5s ease-in-out, opacity .5s ease-in-out;
-
+  transition: -webkit-backdrop-filter 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transition: backdrop-filter 0.5s ease-in-out, opacity 0.5s ease-in-out;
 
   opacity: 0;
 }
@@ -365,7 +350,7 @@ figure {
 }
 
 .hover-desc-overlay-subheading {
-  font-size: .5em;
+  font-size: 0.5em;
 }
 
 /* padding-bottom is percentage relative of width as per CSS specification: 
@@ -427,8 +412,6 @@ figure {
   margin-top: 15px;
 }
 
-
-
 .project-details-button-container {
   text-align: right;
 }
@@ -462,7 +445,7 @@ figure {
   display: inline-block;
 }
 
-#blog-post>h1 {
+#blog-post > h1 {
   text-align: center;
 }
 
@@ -470,12 +453,23 @@ figure {
   width: 100%;
 }
 
+.flex-shelf {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  & > * {
+    flex: 1 1 0;
+  }
+}
+
 hr {
   color: black;
   border: 1px solid;
 }
 
-#blog-nav,.blog-nav>p {
+#blog-nav,
+.blog-nav > p {
   text-align: center;
 }
 
@@ -483,12 +477,9 @@ footer {
   background-color: #457570;
   text-align: center;
   margin-top: 7.5px;
-  ;
 }
 
 @media (max-width: 500px) {
-
-
   #grid {
     grid-template-columns: 1fr;
   }
@@ -500,9 +491,9 @@ footer {
   .try-one-three-grid-columns {
     grid-column: initial;
   }
-  
+
   .project-details a {
-    word-break:break-all;
+    word-break: break-all;
   }
 
   @media (max-width: 340px) {
@@ -517,8 +508,7 @@ footer {
     opacity: 100%;
   }
 
-
-  .hover-desc-overlay>span {
+  .hover-desc-overlay > span {
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     border: 1px black solid;

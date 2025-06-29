@@ -17,7 +17,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "blog-build": "node ./scripts/buildBlog.js",
+    "build-and-deploy": "node ./scripts/buildBlog.js && node ./scripts/buildAndDeploy.js"
   },
   "eslintConfig": {
     "extends": [
