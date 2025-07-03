@@ -17,7 +17,6 @@ const RouterContext = createContext({
 
 const routerPush = (route, callback) => {
   window.location.href = `${(route[0] === "/" && window.origin) || ""}${route}`
-  console.log(route, "routehello")
   callback(route)
 }
 
@@ -25,7 +24,6 @@ export function RouterContextStateManager({ children }) {
   const [routeString, setRouteString] = useState(
     window.location.pathname.substring(1)
   )
-  console.log("bingo")
   const routerContextValue = {
     /** Start target with `'/'` for path to be considered relative to current origin. */
     push: (routeString) =>
@@ -36,7 +34,6 @@ export function RouterContextStateManager({ children }) {
     routerPush("/", () => setRouteString(""))
   }
 
-  console.log("providing value to routercontext")
 
   const CurrentRouteComponent = pagesDictionary[routeString]
   return (
