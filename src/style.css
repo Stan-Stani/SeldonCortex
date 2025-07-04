@@ -337,8 +337,12 @@ figure {
   width: 100%;
 
   /* Safari still requires -webkit- prefix for backdrop-filter as of Dec 2022 */
-  transition: -webkit-backdrop-filter 0.5s ease-in-out, opacity 0.5s ease-in-out;
-  transition: backdrop-filter 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transition:
+    -webkit-backdrop-filter 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
+  transition:
+    backdrop-filter 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
 
   opacity: 0;
 }
@@ -471,6 +475,16 @@ figure {
   & > * {
     flex: 1 1 0;
   }
+}
+
+.flex-end {
+  margin-left: auto;
+  flex: 0 0 25%;
+}
+
+.flex-start {
+  margin-right: auto;
+  flex: 0 0 25%;
 }
 
 hr {

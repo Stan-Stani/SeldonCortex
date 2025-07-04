@@ -16,9 +16,10 @@ export default function BlogNav({
 
   return (
     <div className='blog-nav'>
-      <p>
+      <p className="flex-shelf">
         {blogState.currentBlogPostIndex === 0 ? null : (
           <button
+            className='flex-start'
             id='see-next-blog-post'
             title='Next post'
             onClick={async (event) => {
@@ -50,6 +51,7 @@ export default function BlogNav({
         {blogState.currentBlogPostIndex ===
         blogState.blogArr.length - 1 ? null : (
           <button
+            className='flex-end'
             id='see-previous-blog-post'
             title='Previous post'
             onClick={async (event) => {
