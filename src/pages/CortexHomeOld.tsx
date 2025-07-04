@@ -28,7 +28,7 @@ const imagesToPreload = [
 ]
 
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 const projectDetailsDataObj = {
   'Booktown': {
@@ -195,7 +195,7 @@ function CortexHomeOld() {
 
   useEffect(() => {
 
-    document.addEventListener("scroll", (e) => {
+    document.addEventListener("scroll", () => {
       setIsScrolled(() => {
         if (window.scrollY === 0) {
           return false;
@@ -277,9 +277,9 @@ function CortexHomeOld() {
 
 
 
-  let projectGridOrderObj = {};
-  for (let i in projectGridOrderArr) {
-    i = parseInt(i);
+  let projectGridOrderObj: Record<string, number> = {};
+  for (let index in projectGridOrderArr) {
+    const i = parseInt(index);
     projectGridOrderObj[projectGridOrderArr[i]] = i;
 
     if (projectGridOrderArr.length === i + 1) {
@@ -396,7 +396,7 @@ function CortexHomeOld() {
     </div>
   )
 
-  function handlePortfolioItemClick(itemName) {
+  function handlePortfolioItemClick(itemName: string) {
     setState(oldState => {
       let newState = { ...oldState };
       newState.portfolioPresentation = itemName;
@@ -407,7 +407,7 @@ function CortexHomeOld() {
 }
 
 
-function HoverDescAnchor(props) {
+function HoverDescAnchor(props: any) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
@@ -426,13 +426,13 @@ function HoverDescAnchor(props) {
   )
 }
 
-function getBlogPost(event, state, setState, indexToGet) {
+function getBlogPost(_event: any, state: any, setState: any, indexToGet: number) {
 
   fetch('/blog/' + state.blogArr[indexToGet].fileName)
     .then(res => {
       res.text()
         .then(post => {
-          setState(oldState => {
+          setState((oldState: any) => {
             let newState = Object.assign({}, oldState);
             let tagsString = oldState.blogArr[indexToGet].tags.join(' #')
             if (tagsString !== '') tagsString = '#' + tagsString;

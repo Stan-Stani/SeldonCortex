@@ -1,9 +1,27 @@
 import RouterContext from "../components/contexts/router/RouterContext"
 import { useState, useEffect, useContext } from "react"
 
+interface BlogPost {
+  fileName: string;
+  tags: string[];
+}
+
+interface State {
+  isBodyScrolledToTop: boolean;
+  blogPostHtml: { __html: string };
+  blogArr: BlogPost[];
+  currentBlogPostIndex: number;
+  portfolioPresentation: string;
+}
+
+interface BlogNavProps {
+  state: State;
+  setState: React.Dispatch<React.SetStateAction<State>>;
+}
+
 function CortexHome() {
   const router = useContext(RouterContext)
-  const [state, setState] = useState({
+  const [state, setState] = useState<State>({
     isBodyScrolledToTop: true,
     blogPostHtml: {
       __html: "<p>Hmm... the blog's not loading for some reason... :(</p>",
@@ -78,7 +96,7 @@ function CortexHome() {
   )
 }
 
-function getBlogPost(event, state, setState, indexToGet) {
+function getBlogPost(_event: React.MouseEvent, state: State, setState: React.Dispatch<React.SetStateAction<State>>, indexToGet: number) {
   fetch("/blog/" + state.blogArr[indexToGet].fileName).then((res) => {
     res.text().then((post) => {
       setState((oldState) => {
@@ -97,7 +115,7 @@ function getBlogPost(event, state, setState, indexToGet) {
   })
 }
 
-function BlogNav({ state, setState }) {
+function BlogNav({ state, setState }: BlogNavProps) {
   return (
     <div className='blog-nav'>
       <p>
