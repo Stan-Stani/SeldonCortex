@@ -1,6 +1,5 @@
 import RouterContext from "../components/contexts/router/RouterContext"
-
-const { useState, useEffect, useContext } = require("react")
+import { useState, useEffect, useContext } from "react"
 
 function CortexHome() {
   const router = useContext(RouterContext)

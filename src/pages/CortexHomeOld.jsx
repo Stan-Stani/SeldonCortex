@@ -28,10 +28,7 @@ const imagesToPreload = [
 ]
 
 
-const React = require('react');
-const useState = React.useState;
-const useEffect = React.useEffect;
-const useRef = React.useRef;
+import React, { useState, useEffect, useRef } from 'react';
 
 const projectDetailsDataObj = {
   'Booktown': {
