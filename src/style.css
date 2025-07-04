@@ -445,6 +445,16 @@ figure {
   display: inline-block;
 }
 
+.relative {
+  position: relative;
+}
+
+.absolute-top-right {
+  position: absolute;
+  right: 1rem;
+  top: 0;
+}
+
 #blog-post > h1 {
   text-align: center;
 }
