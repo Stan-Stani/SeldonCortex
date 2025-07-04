@@ -490,6 +490,10 @@ hr {
   border: 1px solid;
 }
 
+.blog-section {
+  scroll-margin-top: 75px;
+}
+
 #blog-nav,
 .blog-nav > p {
   text-align: center;

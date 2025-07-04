@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react"
-import BlogNav from "./nav/BlogNav"
+import { useEffect, useRef, useState } from "react"
 import {
   getPostWithTagsInHTML,
   readBlogPostURLParam,
   setBlogPostURLParam,
 } from "./blogHelpers"
+import BlogNav from "./nav/BlogNav"
 
 export interface BlogPost {
   fileName: string
@@ -18,7 +18,7 @@ export interface BlogState {
 }
 
 export default function Blog() {
-  const blogStateTuple = useState<BlogState>({
+  const [blogState, setBlogState] = useState<BlogState>({
     blogPostHtml: { __html: "" },
     blogArr: [],
     currentBlogPostIndex: -1,
@@ -36,7 +36,7 @@ export default function Blog() {
       let blogPostPath = "/blog/" + fileName
       const blogPostRes = await fetch(blogPostPath)
       const blogPost = await blogPostRes.text()
-      blogStateTuple[1]((oldState) => {
+      setBlogState((oldState) => {
         let newState = Object.assign({}, oldState)
         newState.blogArr = blogArr
 
@@ -55,25 +55,33 @@ export default function Blog() {
     })()
   }, [])
 
+  const blogPostIndex = blogState.currentBlogPostIndex
+  useEffect(() => {
+    // If statement here is just so eslint rule doesn't complain
+    if (typeof blogPostIndex === "number") {
+      blogSectionRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [blogPostIndex])
+
+  const blogSectionRef = useRef<HTMLElement>(null)
+
   return (
-    <section className='panel text-focus white-text relative'>
+    <section
+      ref={blogSectionRef}
+      className='panel text-focus white-text relative blog-section'
+    >
       <div className='flex-shelf flex-wrap'>
         <h2>Blog</h2>
-        <h3 className="text-align-end">
+        <h3 className='text-align-end'>
           Originally Published:{" "}
-          {blogStateTuple[0].blogArr
-            .find(
-              (_bp, index) => index === blogStateTuple[0].currentBlogPostIndex
-            )
+          {blogState.blogArr
+            .find((_bp, index) => index === blogState.currentBlogPostIndex)
             ?.fileName.slice(0, 10)}
         </h3>
       </div>
-      <BlogNav blogStateTuple={blogStateTuple} />
-      <div
-        id='blog-post'
-        dangerouslySetInnerHTML={blogStateTuple[0].blogPostHtml}
-      />
-      <BlogNav blogStateTuple={blogStateTuple} />
+      <BlogNav blogStateTuple={[blogState, setBlogState]} />
+      <div id='blog-post' dangerouslySetInnerHTML={blogState.blogPostHtml} />
+      <BlogNav blogStateTuple={[blogState, setBlogState]} />
     </section>
   )
 }
