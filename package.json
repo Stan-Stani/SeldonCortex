@@ -38,6 +38,7 @@
     "@types/react-transition-group": "^4.4.12",
     "@vitejs/plugin-react": "^4.0.0",
     "marked": "^14.1.2",
+    "prettier": "^3.6.2",
     "ssh2-sftp-client": "^11.0.0",
     "typescript": "^5.8.3",
     "vite": "^5.0.0"

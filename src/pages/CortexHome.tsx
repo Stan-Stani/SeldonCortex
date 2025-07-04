@@ -1,5 +1,5 @@
-import RouterContext from "../components/contexts/router/RouterContext"
-import { useState, useEffect, useContext } from "react"
+import RouterContext from "../components/contexts/router/RouterContext";
+import { useState, useEffect, useContext } from "react";
 
 interface BlogPost {
   fileName: string;
@@ -20,7 +20,7 @@ interface BlogNavProps {
 }
 
 function CortexHome() {
-  const router = useContext(RouterContext)
+  const router = useContext(RouterContext);
   const [state, setState] = useState<State>({
     isBodyScrolledToTop: true,
     blogPostHtml: {
@@ -29,58 +29,58 @@ function CortexHome() {
     blogArr: [],
     currentBlogPostIndex: 0,
     portfolioPresentation: "grid",
-  })
+  });
 
   useEffect(() => {
     // Initialize blog post reference object from .JSON
     fetch("/blog/blog.json").then((res) => {
       return res.json().then((blogArr) => {
-        let fileName = blogArr[0].fileName
-        let relativePath = "/blog/" + fileName
+        let fileName = blogArr[0].fileName;
+        let relativePath = "/blog/" + fileName;
 
         fetch(relativePath)
           .then((res) => {
-            return res.text()
+            return res.text();
           })
           .then((post) => {
             setState((oldState) => {
-              let newState = Object.assign({}, oldState)
-              newState.blogArr = blogArr
-              let tagsString = blogArr[0].tags.join(" #")
-              if (tagsString !== "") tagsString = "#" + tagsString
+              let newState = Object.assign({}, oldState);
+              newState.blogArr = blogArr;
+              let tagsString = blogArr[0].tags.join(" #");
+              if (tagsString !== "") tagsString = "#" + tagsString;
               newState.blogPostHtml = {
                 __html: post + "<hr><p>" + tagsString + "</p>",
-              }
-              newState.currentBlogPostIndex = 0
-              return newState
-            })
-          })
-      })
-    })
-  }, [])
+              };
+              newState.currentBlogPostIndex = 0;
+              return newState;
+            });
+          });
+      });
+    });
+  }, []);
 
   return (
-    <div id='root-contained'>
+    <div id="root-contained">
       <header>
-        <h1 id='title' className='white-text'>
+        <h1 id="title" className="white-text">
           Seldon Cortex
         </h1>
       </header>
-      <div id='center-panels-container'>
-        <section className='panel text-focus white-text'>
+      <div id="center-panels-container">
+        <section className="panel text-focus white-text">
           <h2>Blog</h2> <BlogNav state={state} setState={setState} />
-          <div id='blog-post' dangerouslySetInnerHTML={state.blogPostHtml} />
+          <div id="blog-post" dangerouslySetInnerHTML={state.blogPostHtml} />
           <BlogNav state={state} setState={setState} />
         </section>
-        <section className='panel text-focus white-text'>
+        <section className="panel text-focus white-text">
           <h2>Contact Me</h2>
           <p>
-            <a href='./email/email.html' target='_blank'>
+            <a href="./email/email.html" target="_blank">
               Email
             </a>
           </p>
         </section>
-        <section className='panel text-focus white-text'>
+        <section className="panel text-focus white-text">
           <p>
             <button onClick={() => router.push("/about")}>
               <h2>About The Author</h2>
@@ -88,48 +88,53 @@ function CortexHome() {
           </p>
         </section>
       </div>
-      <footer className='white-text'>
+      <footer className="white-text">
         <strong>S. G. Stanislaus Copyright 2024</strong>
         <br />
       </footer>
     </div>
-  )
+  );
 }
 
-function getBlogPost(_event: React.MouseEvent, state: State, setState: React.Dispatch<React.SetStateAction<State>>, indexToGet: number) {
+function getBlogPost(
+  _event: React.MouseEvent,
+  state: State,
+  setState: React.Dispatch<React.SetStateAction<State>>,
+  indexToGet: number
+) {
   fetch("/blog/" + state.blogArr[indexToGet].fileName).then((res) => {
     res.text().then((post) => {
       setState((oldState) => {
-        let newState = Object.assign({}, oldState)
-        let tagsString = oldState.blogArr[indexToGet].tags.join(" #")
-        if (tagsString !== "") tagsString = "#" + tagsString
+        let newState = Object.assign({}, oldState);
+        let tagsString = oldState.blogArr[indexToGet].tags.join(" #");
+        if (tagsString !== "") tagsString = "#" + tagsString;
 
         newState.blogPostHtml = {
           __html: post + "<hr><p>" + tagsString + "</p>",
-        }
-        newState.currentBlogPostIndex = indexToGet
+        };
+        newState.currentBlogPostIndex = indexToGet;
 
-        return newState
-      })
-    })
-  })
+        return newState;
+      });
+    });
+  });
 }
 
 function BlogNav({ state, setState }: BlogNavProps) {
   return (
-    <div className='blog-nav'>
+    <div className="blog-nav">
       <p>
         {state.currentBlogPostIndex === 0 ? null : (
           <button
-            id='see-next-blog-post'
-            title='Next post'
+            id="see-next-blog-post"
+            title="Next post"
             onClick={(event) => {
               getBlogPost(
                 event,
                 state,
                 setState,
                 state.currentBlogPostIndex - 1
-              )
+              );
             }}
           >
             &lt;
@@ -138,15 +143,15 @@ function BlogNav({ state, setState }: BlogNavProps) {
 
         {state.currentBlogPostIndex === state.blogArr.length - 1 ? null : (
           <button
-            id='see-previous-blog-post'
-            title='Previous post'
+            id="see-previous-blog-post"
+            title="Previous post"
             onClick={(event) => {
               getBlogPost(
                 event,
                 state,
                 setState,
                 state.currentBlogPostIndex + 1
-              )
+              );
             }}
           >
             &gt;
@@ -154,8 +159,8 @@ function BlogNav({ state, setState }: BlogNavProps) {
         )}
       </p>
     </div>
-  )
+  );
 }
 
 // Exporting the component
-export default CortexHome
+export default CortexHome;
