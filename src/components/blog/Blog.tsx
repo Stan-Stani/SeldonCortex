@@ -57,15 +57,18 @@ export default function Blog() {
 
   return (
     <section className='panel text-focus white-text relative'>
-      <h2>Blog</h2> <BlogNav blogStateTuple={blogStateTuple} />
-      <h3 className='absolute-top-right'>
-        Originally Published:{" "}
-        {blogStateTuple[0].blogArr
-          .find(
-            (_bp, index) => index === blogStateTuple[0].currentBlogPostIndex
-          )
-          ?.fileName.slice(0, 10)}
-      </h3>
+      <div className='flex-shelf flex-wrap'>
+        <h2>Blog</h2>
+        <h3 className="text-align-end">
+          Originally Published:{" "}
+          {blogStateTuple[0].blogArr
+            .find(
+              (_bp, index) => index === blogStateTuple[0].currentBlogPostIndex
+            )
+            ?.fileName.slice(0, 10)}
+        </h3>
+      </div>
+      <BlogNav blogStateTuple={blogStateTuple} />
       <div
         id='blog-post'
         dangerouslySetInnerHTML={blogStateTuple[0].blogPostHtml}
