@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react"
 import BlogNav from "./nav/BlogNav"
-import { getPostWithTagsInHTML } from "./blogHelpers"
+import {
+  getPostWithTagsInHTML,
+  readBlogPostURLParam,
+  setBlogPostURLParam,
+} from "./blogHelpers"
 
 export interface BlogPost {
   fileName: string
@@ -25,9 +29,11 @@ export default function Blog() {
     ;(async () => {
       const res = await fetch("/blog/blog.json")
       const blogArr = (await res.json()) as BlogPost[]
-      let fileName = blogArr[0].fileName
-      let blogPostPath = "/blog/" + fileName
 
+      let fileName = readBlogPostURLParam()
+
+      fileName = fileName || blogArr[0].fileName
+      let blogPostPath = "/blog/" + fileName
       const blogPostRes = await fetch(blogPostPath)
       const blogPost = await blogPostRes.text()
       blogStateTuple[1]((oldState) => {
@@ -38,7 +44,12 @@ export default function Blog() {
           __html: getPostWithTagsInHTML(blogPost, blogArr[0].tags),
         }
 
-        newState.currentBlogPostIndex = 0
+        newState.currentBlogPostIndex = blogArr.findIndex(
+          (bp) => bp.fileName === fileName
+        )
+
+        setBlogPostURLParam(fileName)
+
         return newState
       })
     })()

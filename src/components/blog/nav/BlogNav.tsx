@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react"
 import { BlogState } from "../Blog"
-import { getPostWithTagsInHTML } from "../blogHelpers"
+import { getPostWithTagsInHTML, setBlogPostURLParam } from "../blogHelpers"
 
 async function getBlogPost(_event: React.MouseEvent, fileName: string) {
   const res = await fetch("/blog/" + fileName)
@@ -22,23 +22,23 @@ export default function BlogNav({
             id='see-next-blog-post'
             title='Next post'
             onClick={async (event) => {
-              const blogPost = await getBlogPost(
-                event,
+              const fileName =
                 blogState.blogArr[blogState.currentBlogPostIndex - 1].fileName
-              )
+              const postText = await getBlogPost(event, fileName)
               setBlogState((oldState) => {
                 const newIndex = oldState.currentBlogPostIndex - 1
                 let newState = Object.assign({}, oldState)
 
                 newState.blogPostHtml = {
                   __html: getPostWithTagsInHTML(
-                    blogPost,
+                    postText,
                     oldState.blogArr[newIndex].tags
                   ),
                 }
 
                 newState.currentBlogPostIndex = newIndex
 
+                setBlogPostURLParam(fileName)
                 return newState
               })
             }}
@@ -53,22 +53,22 @@ export default function BlogNav({
             id='see-previous-blog-post'
             title='Previous post'
             onClick={async (event) => {
-              const blogPost = await getBlogPost(
-                event,
+              const fileName =
                 blogState.blogArr[blogState.currentBlogPostIndex + 1].fileName
-              )
+              const postText = await getBlogPost(event, fileName)
               setBlogState((oldState) => {
                 const newIndex = oldState.currentBlogPostIndex + 1
                 let newState = Object.assign({}, oldState)
 
                 newState.blogPostHtml = {
                   __html: getPostWithTagsInHTML(
-                    blogPost,
+                    postText,
                     oldState.blogArr[newIndex].tags
                   ),
                 }
                 newState.currentBlogPostIndex = newIndex
 
+                setBlogPostURLParam(fileName)
                 return newState
               })
             }}
