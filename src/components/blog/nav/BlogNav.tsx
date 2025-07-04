@@ -1,59 +1,76 @@
-function getBlogPost(
-  _event: React.MouseEvent,
-  state: State,
-  setState: React.Dispatch<React.SetStateAction<State>>,
-  indexToGet: number
-) {
-  fetch("/blog/" + state.blogArr[indexToGet].fileName).then((res) => {
-    res.text().then((post) => {
-      setState((oldState) => {
-        let newState = Object.assign({}, oldState);
-        let tagsString = oldState.blogArr[indexToGet].tags.join(" #");
-        if (tagsString !== "") tagsString = "#" + tagsString;
+import { Dispatch, SetStateAction } from "react"
+import { BlogState } from "../Blog"
+import { getPostWithTagsInHTML } from "../blogHelpers"
 
-        newState.blogPostHtml = {
-          __html: post + "<hr><p>" + tagsString + "</p>",
-        };
-        newState.currentBlogPostIndex = indexToGet;
-
-        return newState;
-      });
-    });
-  });
+async function getBlogPost(_event: React.MouseEvent, fileName: string) {
+  const res = await fetch("/blog/" + fileName)
+  return await res.text()
 }
 
-function BlogNav({ state, setState }: BlogNavProps) {
+export default function BlogNav({
+  blogStateTuple,
+}: {
+  blogStateTuple: [BlogState, Dispatch<SetStateAction<BlogState>>]
+}) {
+  const [blogState, setBlogState] = blogStateTuple
+
   return (
-    <div className="blog-nav">
+    <div className='blog-nav'>
       <p>
-        {state.currentBlogPostIndex === 0 ? null : (
+        {blogState.currentBlogPostIndex === 0 ? null : (
           <button
-            id="see-next-blog-post"
-            title="Next post"
-            onClick={(event) => {
-              getBlogPost(
+            id='see-next-blog-post'
+            title='Next post'
+            onClick={async (event) => {
+              const blogPost = await getBlogPost(
                 event,
-                state,
-                setState,
-                state.currentBlogPostIndex - 1
-              );
+                blogState.blogArr[blogState.currentBlogPostIndex - 1].fileName
+              )
+              setBlogState((oldState) => {
+                const newIndex = oldState.currentBlogPostIndex - 1
+                let newState = Object.assign({}, oldState)
+
+                newState.blogPostHtml = {
+                  __html: getPostWithTagsInHTML(
+                    blogPost,
+                    oldState.blogArr[newIndex].tags
+                  ),
+                }
+
+                newState.currentBlogPostIndex = newIndex
+
+                return newState
+              })
             }}
           >
             &lt;
           </button>
         )}
 
-        {state.currentBlogPostIndex === state.blogArr.length - 1 ? null : (
+        {blogState.currentBlogPostIndex ===
+        blogState.blogArr.length - 1 ? null : (
           <button
-            id="see-previous-blog-post"
-            title="Previous post"
-            onClick={(event) => {
-              getBlogPost(
+            id='see-previous-blog-post'
+            title='Previous post'
+            onClick={async (event) => {
+              const blogPost = await getBlogPost(
                 event,
-                state,
-                setState,
-                state.currentBlogPostIndex + 1
-              );
+                blogState.blogArr[blogState.currentBlogPostIndex + 1].fileName
+              )
+              setBlogState((oldState) => {
+                const newIndex = oldState.currentBlogPostIndex + 1
+                let newState = Object.assign({}, oldState)
+
+                newState.blogPostHtml = {
+                  __html: getPostWithTagsInHTML(
+                    blogPost,
+                    oldState.blogArr[newIndex].tags
+                  ),
+                }
+                newState.currentBlogPostIndex = newIndex
+
+                return newState
+              })
             }}
           >
             &gt;
@@ -61,5 +78,5 @@ function BlogNav({ state, setState }: BlogNavProps) {
         )}
       </p>
     </div>
-  );
+  )
 }
