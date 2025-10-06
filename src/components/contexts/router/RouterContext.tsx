@@ -1,10 +1,12 @@
 import { createContext, useState, ReactNode } from "react"
 import CortexHome from "../../../pages/CortexHome"
 import CortexHomeOld from "../../../pages/CortexHomeOld"
+import Sinoglyphs from "../../../pages/Sinoglyphs";
 
 const pagesDictionary: Record<string, React.ComponentType> = {
   "": CortexHome,
   about: CortexHomeOld,
+  sinoglyphs: Sinoglyphs
 }
 
 interface RouterContextType {

@@ -1,0 +1,9 @@
+{
+  "workbench.colorCustomizations": {
+    "editorOverviewRuler.deletedForeground": "#633b07",
+    "activityBar.background": "#4E0564",
+    "titleBar.activeBackground": "#6E078C",
+    "titleBar.activeForeground": "#FEFBFF"
+  },
+  "cSpell.words": ["Sinoglyphs"]
+}

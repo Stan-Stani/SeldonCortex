@@ -289,7 +289,7 @@ function CortexHomeOld() {
 
 
   return (
-    <div id="root-contained">
+    <div id="root-contained" className='seldon-cortex-theme'>
       <header>
         <CSSTransition in={isScrolled} appear={false} timeout={1000} classNames="shrink">
           <img id="logo" className="logo-initial" src="./assets/home/500px-Human_brain.jpg" />

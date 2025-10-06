@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Sarasa Mono J";
+  src: url("/fonts/sarasa/SarasaMonoJ-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* https://lospec.com/palette-list/arne-16  */
+@theme {
+      --font-sarasa: "Sarasa Mono J", ui-monospace, monospace;
+    --font-mono: "Sarasa Mono J", ui-monospace, monospace;
+  
+  --color-arne16-void: #000000;
+  --color-arne16-gray: #9d9d9d;
+  --color-arne16-white: #ffffff;
+  --color-arne16-red: #be2633;
+  --color-arne16-meat: #e06f8b;
+  --color-arne16-darkbrown: #493c2b;
+  --color-arne16-brown: #a46422;
+  --color-arne16-orange: #eb8931;
+  --color-arne16-yellow: #f7e26b;
+  --color-arne16-darkgreen: #2f484e;
+  --color-arne16-green: #44891a;
+  --color-arne16-slimegreen: #a3ce27;
+  --color-arne16-nightblue: #1b2632;
+  --color-arne16-seablue: #005784;
+  --color-arne16-skyblue: #31a2f2;
+  --color-arne16-cloudblue: #b2dcef;
+}

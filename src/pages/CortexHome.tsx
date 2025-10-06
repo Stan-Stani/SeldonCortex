@@ -61,7 +61,7 @@ function CortexHome() {
   }, [])
 
   return (
-    <div id='root-contained'>
+    <div id='root-contained' className="seldon-cortex-theme">
       <header>
         <h1 id='title' className='white-text'>
           Seldon Cortex
