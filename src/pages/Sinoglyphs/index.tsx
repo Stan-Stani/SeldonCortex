@@ -1,6 +1,6 @@
 import { useContext, useState } from "react"
 import RouterContext from "../../components/contexts/router/RouterContext"
-import SinoglyphMap from "../../components/sinoglyphComponents/map"
+import WorldMap from "../../components/sinoglyphsComponents/worldMap"
 
 interface BlogPost {
   fileName: string
@@ -22,7 +22,6 @@ interface BlogNavProps {
 
 /**
  *
- * @todo notosans
  */
 function Sinoglyphs() {
   // Dynamic import to prevent tailwind messing with root styles for main page of website
@@ -42,7 +41,7 @@ function Sinoglyphs() {
     <div id='sinoglyphs' className='h-full text-arne16-white font-sarasa bg-arne16-void'>
       <header className='bg-arne16-slimegreen'>hello</header>
 
-      <SinoglyphMap />
+      <WorldMap />
     </div>
   )
 }
