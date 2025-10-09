@@ -32,15 +32,25 @@ X
 const WIDTH = 26
 const HEIGHT = 26
 
-declare const GlyphBrand: unique symbol
-/** One character string */
-type Glyph = string & { readonly [GlyphBrand]: never }
+// declare const GlyphBrand: unique symbol
+// /** One character string */
+// type Glyph = string & { readonly [GlyphBrand]: never }
 
-function isGlyph(s: string): s is Glyph {
-  if (s.length !== 1) {
-    throw new Error("Glyph must be one character")
+class Glyph {
+  #string: string
+  static throwIfNotOneCharacter(s: string) {
+    if (s.length !== 1) {
+      throw new Error("Glyph must be one character")
+    }
+    return true
   }
-  return true
+
+  constructor(string: string) {
+    Glyph.throwIfNotOneCharacter(string)
+    this.#string = string
+  }
+
+  toString = () => this.#string
 }
 
 function clamp(number: number, min: number, max: number) {
@@ -126,35 +136,200 @@ class BoardCoordinate extends Coordinate {
   }
 }
 
+class TwoWayMap<T extends object> {
+  map: Map<keyof T, T[keyof T]>
+  reverseMap: Map<T[keyof T], keyof T>
+  #internalObjRepresentation: T
+  constructor(srcObj: T) {
+    this.#internalObjRepresentation = { ...srcObj }
+    const srcEntries = Object.entries(this.#internalObjRepresentation) as Array<
+      [keyof T, T[keyof T]]
+    >
+    this.map = new Map(srcEntries)
+
+    const reverseEntries = srcEntries.map((entry) => [
+      entry[1],
+      entry[0],
+    ]) as Array<[T[keyof T], keyof T]>
+    this.reverseMap = new Map(reverseEntries)
+  }
+  get<K extends keyof T>(key: K): T[K] | undefined
+  get<V extends T[keyof T]>(value: V): keyof T | undefined
+  get(key: keyof T | T[keyof T]): T[keyof T] | keyof T | undefined {
+    if (
+      this.map.has(key as keyof T) &&
+      this.reverseMap.has(key as T[keyof T])
+    ) {
+      throw new Error(
+        "Unable to determine which way to use key because it exists as a key and as a value"
+      )
+    }
+    return this.map.get(key as keyof T) === undefined
+      ? this.reverseMap.get(key as T[keyof T])
+      : this.map.get(key as keyof T)
+  }
+  has(key: keyof T | T[keyof T]) {
+    return (
+      this.map.has(key as keyof T) || this.reverseMap.has(key as T[keyof T])
+    )
+  }
+  set(key: keyof T, value: T[keyof T]) {
+    if (key === value) {
+      throw new Error(
+        "Can't add a key and value pair that are identical to each other"
+      )
+    }
+    this.map.set(key, value)
+    this.reverseMap.set(value, key)
+    this.#internalObjRepresentation[key] = value
+  }
+
+  toObject() {
+    return { ...this.#internalObjRepresentation }
+  }
+}
+
 type coordPrimitive = `${bigint}, ${bigint}`
 class Board {
-  constructor(public coordGlyphRecord: Record<coordPrimitive, Glyph> = {}) {}
+  #emptyGlyph: Glyph
+  #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
+  #playerGlyph: Glyph
+  constructor(
+    playerGlyph: Glyph,
+    coordGlyphRecord: Record<coordPrimitive, Glyph> = {},
+    emptyGlyphString: string = "　"
+  ) {
+    this.#coordGlyphTwoWayMap = new TwoWayMap(coordGlyphRecord)
+    this.#emptyGlyph = new Glyph(emptyGlyphString)
+    this.#playerGlyph = playerGlyph
+    this.#coordGlyphTwoWayMap.set(
+      `${WIDTH / 2}, ${HEIGHT / 2}`,
+      this.#playerGlyph
+    )
+  }
 
-  placeGlyph(glyph: string, coord: BoardCoordinate, overwriteOkay = false) {
-    if (!isGlyph(glyph)) {
-      throw new Error("Glyph must be one character")
-    }
+  placeGlyph(
+    glyphString: string,
+    coord: BoardCoordinate,
+    overwriteOkay = false
+  ) {
+    const glyph = new Glyph(glyphString)
 
     if (
-      this.coordGlyphRecord[
+      this.#coordGlyphTwoWayMap.has(
         `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
-      ] &&
+      ) &&
       !overwriteOkay
     ) {
       throw new Error("Attempted to overwrite a glyph on the board")
     }
 
-    this.coordGlyphRecord[
+    this.#coordGlyphTwoWayMap.set(
+      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
+      glyph
+    )
+    console.log(this.#coordGlyphTwoWayMap.toObject())
+  }
+
+  removeGlyph(coord: BoardCoordinate, throwIfAlreadyEmpty = false) {
+    const retrievedMember = this.#coordGlyphTwoWayMap.get(
       `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
-    ] = glyph
+    )
+    if (!(retrievedMember instanceof Glyph)) {
+      throw new Error("retrievedMember should be a glyph")
+    }
+    const glyph = retrievedMember
+
+    if (
+      glyph.toString() === this.#emptyGlyph.toString() &&
+      throwIfAlreadyEmpty
+    ) {
+      throw new Error("Attempted to remove an empty glyph")
+    }
+
+    this.#coordGlyphTwoWayMap.set(
+      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
+      this.#emptyGlyph
+    )
+  }
+
+  moveGlyph(glyph: Glyph, dest: coordPrimitive, overwriteOkay = false) {
+    const originalPosTuple = this.#coordGlyphTwoWayMap
+      .get(glyph)
+      ?.split(", ")
+      .map((v) => parseInt(v))
+    if (!originalPosTuple) {
+      throw "Glyph did not exist on board"
+    }
+    this.removeGlyph(
+      new BoardCoordinate(originalPosTuple[0], originalPosTuple[1])
+    )
+    const destPosTuple = dest?.split(", ").map((v) => parseInt(v))
+    this.placeGlyph(
+      glyph.toString(),
+      new BoardCoordinate(destPosTuple[0], destPosTuple[1]),
+      overwriteOkay
+    )
+  }
+
+  moveGlyphRelativeToSelf(
+    glyph: Glyph,
+    direction: "up" | "right" | "down" | "left",
+    overwriteOkay = false
+  ) {
+    const originalPosTuple = this.#coordGlyphTwoWayMap
+      .get(glyph)
+      ?.split(", ")
+      .map((v) => parseInt(v))
+    if (!originalPosTuple) {
+      throw "Glyph did not exist on board"
+    }
+    this.removeGlyph(
+      new BoardCoordinate(originalPosTuple[0], originalPosTuple[1])
+    )
+    switch (direction) {
+      case "up":
+        this.placeGlyph(
+          glyph.toString(),
+          new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] - 1),
+          overwriteOkay
+        )
+        break
+      case "right":
+        this.placeGlyph(
+          glyph.toString(),
+          new BoardCoordinate(originalPosTuple[0] + 1, originalPosTuple[1]),
+          overwriteOkay
+        )
+        break
+      case "down":
+        this.placeGlyph(
+          glyph.toString(),
+          new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] + 1),
+          overwriteOkay
+        )
+        break
+      case "left":
+        this.placeGlyph(
+          glyph.toString(),
+          new BoardCoordinate(originalPosTuple[0] - 1, originalPosTuple[1]),
+          overwriteOkay
+        )
+        break
+    }
   }
 
   get boardString() {
     let boardString = this.#generateBlankBoardString()
-    for (const key in this.coordGlyphRecord) {
+    for (const key in this.#coordGlyphTwoWayMap.toObject()) {
+      const shouldBeGlyph = this.#coordGlyphTwoWayMap.get(key as coordPrimitive)
+      if (shouldBeGlyph === undefined) {
+        throw "Glyph cannot be undefined"
+      }
+      let glyph = shouldBeGlyph
       boardString = this.#writeGlyphToBoardString(
         key as coordPrimitive,
-        this.coordGlyphRecord[key as coordPrimitive],
+        glyph,
         boardString
       )
     }
@@ -167,7 +342,7 @@ class Board {
 
     let blankLine = ""
     for (let i = 1; i <= width; i++) {
-      blankLine += "　"
+      blankLine += this.#emptyGlyph
     }
 
     for (let i = 1; i <= height; i++) {
@@ -179,14 +354,10 @@ class Board {
 
   #writeGlyphToBoardString(
     boardCoordPrim: coordPrimitive,
-    glyph: string,
+    glyph: Glyph,
     boardString: string,
-    doneByPlayer: boolean = false
+    clampToBoardDimensions: boolean = false
   ) {
-    if (!isGlyph(glyph)) {
-      throw new Error("Glyph must be one character")
-    }
-
     const coordStrArr = boardCoordPrim.split(", ")
     const x = parseInt(coordStrArr[0])
     const y = parseInt(coordStrArr[1])
@@ -201,7 +372,7 @@ class Board {
       coordObj.x < 1 ||
       coordObj.x > WIDTH
     ) {
-      if (!doneByPlayer) {
+      if (!clampToBoardDimensions) {
         throw new Error("Attempted to place glyph outside map")
       }
 
@@ -223,29 +394,47 @@ class Board {
 export default function WorldMap() {
   const worldMapDomRef = useRef<HTMLPreElement | null>(null)
 
-  const boardRef = useRef(new Board())
-  const [playerPosition, setPlayerPosition] = useState({ x: 13, y: 13 })
+  const playerGlyphRef = useRef(new Glyph("＠"))
+  const boardRef = useRef(new Board(playerGlyphRef.current))
+  const [boardString, setBoardString] = useState<any>()
 
   const handleKeyboard = useCallback((event: KeyboardEvent) => {
     switch (event.key) {
       /** @Todo add asdf mode */
       case "w":
-        setPlayerPosition((prev) => ({
-          ...prev,
-          y: clamp(--prev.y, 1, HEIGHT),
-        }))
+        boardRef.current.moveGlyphRelativeToSelf(
+          playerGlyphRef.current,
+          "up",
+          true
+        )
+        setBoardString(boardRef.current.boardString)
         break
       case "a":
-        setPlayerPosition((prev) => ({ ...prev, x: clamp(--prev.x, 1, WIDTH) }))
+        boardRef.current.moveGlyphRelativeToSelf(
+          playerGlyphRef.current,
+          "left",
+          true
+        )
+        setBoardString(boardRef.current.boardString)
+
         break
       case "s":
-        setPlayerPosition((prev) => ({
-          ...prev,
-          y: clamp(++prev.y, 1, HEIGHT),
-        }))
+        boardRef.current.moveGlyphRelativeToSelf(
+          playerGlyphRef.current,
+          "down",
+          true
+        )
+        setBoardString(boardRef.current.boardString)
+
         break
       case "d":
-        setPlayerPosition((prev) => ({ ...prev, x: clamp(++prev.x, 1, WIDTH) }))
+        boardRef.current.moveGlyphRelativeToSelf(
+          playerGlyphRef.current,
+          "right",
+          true
+        )
+        setBoardString(boardRef.current.boardString)
+
         break
     }
   }, [])
@@ -261,10 +450,6 @@ export default function WorldMap() {
       worldMapDomElement?.removeEventListener("keydown", handleKeyboard)
   }, [handleKeyboard])
 
-  boardRef.current.placeGlyph(
-    "＠",
-    new BoardCoordinate(playerPosition.x, playerPosition.y)
-  )
   return (
     <pre
       tabIndex={0}
