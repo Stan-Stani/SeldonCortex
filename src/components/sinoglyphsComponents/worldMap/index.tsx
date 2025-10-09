@@ -214,7 +214,7 @@ class Board {
     rows[coordObj.y - 1] =
       rows[coordObj.y - 1].slice(0, coordObj.x - 1) +
       glyph +
-      rows[coordObj.y - 1].slice(coordObj.x + 1)
+      rows[coordObj.y - 1].slice(coordObj.x)
 
     return rows.join("\n")
   }
