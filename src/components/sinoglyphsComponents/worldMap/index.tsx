@@ -168,6 +168,45 @@ class TwoWayMap<T extends object> {
       ? this.reverseMap.get(key as T[keyof T])
       : this.map.get(key as keyof T)
   }
+
+  delete(twoWayKey: keyof T | T[keyof T]): boolean {
+    const mapHasKey = this.map.has(twoWayKey as keyof T)
+    const revMapHasKey = this.reverseMap.has(twoWayKey as T[keyof T])
+    if (mapHasKey && revMapHasKey) {
+      throw new Error(
+        "Unable to determine which way to use key because it exists as a key and as a value"
+      )
+    }
+
+    let isDeleteFromMapSuccess: boolean = false
+    let isDeleteFromRevMapSuccess: boolean = false
+    if (mapHasKey) {
+      const value = this.map.get(twoWayKey as keyof T) as T[keyof T]
+      isDeleteFromMapSuccess = this.map.delete(twoWayKey as keyof T)
+      isDeleteFromRevMapSuccess = this.reverseMap.delete(value)
+      delete this.#internalObjRepresentation[twoWayKey as keyof T]
+    } else if (revMapHasKey) {
+      const value = this.reverseMap.get(twoWayKey as T[keyof T]) as keyof T
+      delete this.#internalObjRepresentation[value]
+      isDeleteFromRevMapSuccess = this.reverseMap.delete(
+        twoWayKey as T[keyof T]
+      )
+      isDeleteFromMapSuccess = this.map.delete(value)
+    }
+
+    if (
+      (isDeleteFromMapSuccess || isDeleteFromRevMapSuccess) &&
+      !(isDeleteFromMapSuccess && isDeleteFromRevMapSuccess)
+    ) {
+      throw new Error(
+        "Should have successfully deleted from both map and reverseMap \
+        if one of them had a successful deletion"
+      )
+    }
+
+    return isDeleteFromMapSuccess && isDeleteFromRevMapSuccess
+  }
+
   has(key: keyof T | T[keyof T]) {
     return (
       this.map.has(key as keyof T) || this.reverseMap.has(key as T[keyof T])
@@ -191,16 +230,17 @@ class TwoWayMap<T extends object> {
 
 type coordPrimitive = `${bigint}, ${bigint}`
 class Board {
-  #emptyGlyph: Glyph
+  #emptySpace: string
   #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
   #playerGlyph: Glyph
   constructor(
     playerGlyph: Glyph,
     coordGlyphRecord: Record<coordPrimitive, Glyph> = {},
-    emptyGlyphString: string = "　"
+    emptySpace: string = "　"
   ) {
     this.#coordGlyphTwoWayMap = new TwoWayMap(coordGlyphRecord)
-    this.#emptyGlyph = new Glyph(emptyGlyphString)
+    // Ensure its string passes Glyph string validation by instantiating a Glyph we immediately discard
+    this.#emptySpace = new Glyph(emptySpace).toString()
     this.#playerGlyph = playerGlyph
     this.#coordGlyphTwoWayMap.set(
       `${WIDTH / 2}, ${HEIGHT / 2}`,
@@ -208,13 +248,7 @@ class Board {
     )
   }
 
-  placeGlyph(
-    glyphString: string,
-    coord: BoardCoordinate,
-    overwriteOkay = false
-  ) {
-    const glyph = new Glyph(glyphString)
-
+  placeGlyph(glyph: Glyph, coord: BoardCoordinate, overwriteOkay = false) {
     if (
       this.#coordGlyphTwoWayMap.has(
         `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
@@ -235,25 +269,21 @@ class Board {
     const retrievedMember = this.#coordGlyphTwoWayMap.get(
       `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
     )
-    if (!(retrievedMember instanceof Glyph)) {
-      throw new Error("retrievedMember should be a glyph")
-    }
-    const glyph = retrievedMember
 
-    if (
-      glyph.toString() === this.#emptyGlyph.toString() &&
-      throwIfAlreadyEmpty
-    ) {
-      throw new Error("Attempted to remove an empty glyph")
+    if (retrievedMember && throwIfAlreadyEmpty) {
+      throw new Error("Attempted to remove empty space")
     }
 
-    this.#coordGlyphTwoWayMap.set(
-      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
-      this.#emptyGlyph
+    this.#coordGlyphTwoWayMap.delete(
+      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
     )
   }
 
-  moveGlyph(glyph: Glyph, dest: coordPrimitive, overwriteOkay = false) {
+  moveGlyph(
+    glyph: Glyph,
+    dest: coordPrimitive | BoardCoordinate,
+    overwriteOkay = false
+  ) {
     const originalPosTuple = this.#coordGlyphTwoWayMap
       .get(glyph)
       ?.split(", ")
@@ -264,12 +294,18 @@ class Board {
     this.removeGlyph(
       new BoardCoordinate(originalPosTuple[0], originalPosTuple[1])
     )
-    const destPosTuple = dest?.split(", ").map((v) => parseInt(v))
-    this.placeGlyph(
-      glyph.toString(),
-      new BoardCoordinate(destPosTuple[0], destPosTuple[1]),
-      overwriteOkay
-    )
+
+    let destBoardCoordinate: BoardCoordinate
+    if (!(dest instanceof BoardCoordinate)) {
+      const destPosTuple = dest?.split(", ").map((v) => parseInt(v))
+      destBoardCoordinate = new BoardCoordinate(
+        destPosTuple[0],
+        destPosTuple[1]
+      )
+    } else {
+      destBoardCoordinate = dest
+    }
+    this.placeGlyph(glyph, destBoardCoordinate, overwriteOkay)
   }
 
   moveGlyphRelativeToSelf(
@@ -284,34 +320,32 @@ class Board {
     if (!originalPosTuple) {
       throw "Glyph did not exist on board"
     }
-    this.removeGlyph(
-      new BoardCoordinate(originalPosTuple[0], originalPosTuple[1])
-    )
+
     switch (direction) {
       case "up":
-        this.placeGlyph(
-          glyph.toString(),
+        this.moveGlyph(
+          glyph,
           new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] - 1),
           overwriteOkay
         )
         break
       case "right":
-        this.placeGlyph(
-          glyph.toString(),
+        this.moveGlyph(
+          glyph,
           new BoardCoordinate(originalPosTuple[0] + 1, originalPosTuple[1]),
           overwriteOkay
         )
         break
       case "down":
-        this.placeGlyph(
-          glyph.toString(),
+        this.moveGlyph(
+          glyph,
           new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] + 1),
           overwriteOkay
         )
         break
       case "left":
-        this.placeGlyph(
-          glyph.toString(),
+        this.moveGlyph(
+          glyph,
           new BoardCoordinate(originalPosTuple[0] - 1, originalPosTuple[1]),
           overwriteOkay
         )
@@ -322,6 +356,7 @@ class Board {
   get boardString() {
     let boardString = this.#generateBlankBoardString()
     for (const key in this.#coordGlyphTwoWayMap.toObject()) {
+      console.log(this.#coordGlyphTwoWayMap.toObject())
       const shouldBeGlyph = this.#coordGlyphTwoWayMap.get(key as coordPrimitive)
       if (shouldBeGlyph === undefined) {
         throw "Glyph cannot be undefined"
@@ -342,7 +377,7 @@ class Board {
 
     let blankLine = ""
     for (let i = 1; i <= width; i++) {
-      blankLine += this.#emptyGlyph
+      blankLine += this.#emptySpace
     }
 
     for (let i = 1; i <= height; i++) {
