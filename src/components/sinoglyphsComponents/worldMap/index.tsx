@@ -14,7 +14,7 @@ const mockMap = `ABCDEFGHIJKLMNOP
 
 
 
-
+米
 
 
                A
@@ -36,6 +36,11 @@ const HEIGHT = 26
 // /** One character string */
 // type Glyph = string & { readonly [GlyphBrand]: never }
 
+/**
+ *  @todo Add error handler for whole game to show in panel
+ *  @todo Research Add internationalization and localization feature for glyph names
+ *  @todo PlayerGlyph subtype that interacts with Glyphs
+ */
 class Glyph {
   #string: string
   static throwIfNotOneCharacter(s: string) {
@@ -248,7 +253,12 @@ class Board {
     )
   }
 
-  placeGlyph(glyph: Glyph, coord: BoardCoordinate, overwriteOkay = false) {
+  placeGlyph(
+    glyph: Glyph,
+    coord: BoardCoordinate,
+    /** @default false */
+    overwriteOkay = false
+  ) {
     if (
       this.#coordGlyphTwoWayMap.has(
         `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
@@ -431,6 +441,7 @@ export default function WorldMap() {
 
   const playerGlyphRef = useRef(new Glyph("＠"))
   const boardRef = useRef(new Board(playerGlyphRef.current))
+  /** @todo Pass setBoardString to Board instance */
   const [boardString, setBoardString] = useState<any>()
 
   const handleKeyboard = useCallback((event: KeyboardEvent) => {
@@ -484,6 +495,13 @@ export default function WorldMap() {
     return () =>
       worldMapDomElement?.removeEventListener("keydown", handleKeyboard)
   }, [handleKeyboard])
+
+  /** @effectName onMountEffect() */
+  useEffect(() => {
+    boardRef.current.placeGlyph(new Glyph("米"), new BoardCoordinate(5, 5))
+    boardRef.current.placeGlyph(new Glyph("水"), new BoardCoordinate(20, 7))
+    setBoardString(boardRef.current.boardString)
+  }, [])
 
   return (
     <pre
