@@ -56,6 +56,8 @@ class Glyph {
   }
 
   toString = () => this.#string
+  /** @todo don't use this for logging / display */
+  toJSON = () => this.#string
 }
 
 function clamp(number: number, min: number, max: number) {
@@ -252,6 +254,12 @@ class Board {
   onBoardChange: (boardString: string) => void = () => {
     /** noop */
   }
+  onNotify: (
+    type: "glyphMoveBlocked",
+    data: { occupyingGlyph: Glyph; failedToMoveGlyph: Glyph }
+  ) => void = () => {
+    /** noop */
+  }
   #emptySpace: string
   #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
   #playerGlyph: Glyph
@@ -276,22 +284,45 @@ class Board {
   placeGlyph(
     glyph: Glyph,
     coord: BoardCoordinate,
-    /** @default false */
-    overwriteOkay = false
-  ) {
+    /** @default throw */
+    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw"
+  ): boolean {
     if (
       this.#coordGlyphTwoWayMap.has(
         `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
-      ) &&
-      !overwriteOkay
+      )
     ) {
-      throw new Error("Attempted to overwrite a glyph on the board")
+      switch (targetOccupiedBehavior) {
+        case "throw":
+          throw new Error("Attempted to overwrite a glyph on the board")
+          break
+        case "overwrite":
+          this.#coordGlyphTwoWayMap.set(
+            `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
+            glyph
+          )
+          return true
+          break
+        case "notify":
+          const occupyingGlyph = this.#coordGlyphTwoWayMap.get(
+            `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
+          )!
+          const failedToMoveGlyph = glyph
+          console.dir({ occupyingGlyph, failedToMoveGlyph }, { depth: null })
+          this.onNotify("glyphMoveBlocked", {
+            occupyingGlyph,
+            failedToMoveGlyph,
+          })
+          return false
+          break
+      }
+    } else {
+      this.#coordGlyphTwoWayMap.set(
+        `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
+        glyph
+      )
+      return true
     }
-
-    this.#coordGlyphTwoWayMap.set(
-      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
-      glyph
-    )
   }
 
   removeGlyph(coord: BoardCoordinate, throwIfAlreadyEmpty = false) {
@@ -311,8 +342,9 @@ class Board {
   moveGlyph(
     glyph: Glyph,
     dest: coordPrimitive | BoardCoordinate,
-    overwriteOkay = false
-  ) {
+    /** @default throw */
+    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw"
+  ): boolean {
     const originalPosTuple = this.#coordGlyphTwoWayMap
       .get(glyph)
       ?.split(", ")
@@ -320,9 +352,12 @@ class Board {
     if (!originalPosTuple) {
       throw "Glyph did not exist on board"
     }
-    this.removeGlyph(
-      new BoardCoordinate(originalPosTuple[0], originalPosTuple[1])
+
+    const originalBoardCoordinate = new BoardCoordinate(
+      originalPosTuple[0],
+      originalPosTuple[1]
     )
+    this.removeGlyph(originalBoardCoordinate)
 
     let destBoardCoordinate: BoardCoordinate
     if (!(dest instanceof BoardCoordinate)) {
@@ -334,14 +369,29 @@ class Board {
     } else {
       destBoardCoordinate = dest
     }
-    this.placeGlyph(glyph, destBoardCoordinate, overwriteOkay)
+
+    const successfullyMovedGlyphToDest = this.placeGlyph(
+      glyph,
+      destBoardCoordinate,
+      targetOccupiedBehavior
+    )
+    if (!successfullyMovedGlyphToDest) {
+      return this.placeGlyph(
+        glyph,
+        originalBoardCoordinate,
+        targetOccupiedBehavior
+      )
+    }
+
+    return successfullyMovedGlyphToDest
   }
 
   moveGlyphRelativeToSelf(
     glyph: Glyph,
     direction: "up" | "right" | "down" | "left",
-    overwriteOkay = false
-  ) {
+    /** @default throw */
+    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw"
+  ): boolean {
     const originalPosTuple = this.#coordGlyphTwoWayMap
       .get(glyph)
       ?.split(", ")
@@ -352,31 +402,31 @@ class Board {
 
     switch (direction) {
       case "up":
-        this.moveGlyph(
+        return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] - 1),
-          overwriteOkay
+          targetOccupiedBehavior
         )
         break
       case "right":
-        this.moveGlyph(
+        return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0] + 1, originalPosTuple[1]),
-          overwriteOkay
+          targetOccupiedBehavior
         )
         break
       case "down":
-        this.moveGlyph(
+        return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] + 1),
-          overwriteOkay
+          targetOccupiedBehavior
         )
         break
       case "left":
-        this.moveGlyph(
+        return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0] - 1, originalPosTuple[1]),
-          overwriteOkay
+          targetOccupiedBehavior
         )
         break
     }
@@ -459,6 +509,7 @@ export default function WorldMap() {
 
   const playerGlyphRef = useRef(new Glyph("＠"))
   const [boardString, setBoardString] = useState<string>()
+  const [notification, setNotification] = useState<string>()
 
   const boardRef = useRef<Board>(undefined as unknown as Board)
   // Prevent initializing board every render
@@ -468,6 +519,9 @@ export default function WorldMap() {
     boardRef.current.placeGlyph(new Glyph("水"), new BoardCoordinate(20, 7))
   }
   boardRef.current.onBoardChange = setBoardString
+  boardRef.current.onNotify = (type, data) => {
+    setNotification(`${type}: ${JSON.stringify(data)}`)
+  }
 
   /** @todo Pass setBoardString to Board instance */
 
@@ -478,7 +532,7 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "up",
-          true
+          "notify"
         )
         setBoardString(boardRef.current.boardString)
         break
@@ -486,7 +540,7 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "left",
-          true
+          "notify"
         )
         setBoardString(boardRef.current.boardString)
 
@@ -495,7 +549,7 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "down",
-          true
+          "notify"
         )
         setBoardString(boardRef.current.boardString)
 
@@ -504,7 +558,7 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "right",
-          true
+          "notify"
         )
         setBoardString(boardRef.current.boardString)
 
@@ -529,12 +583,15 @@ export default function WorldMap() {
   }, [])
 
   return (
-    <pre
-      tabIndex={0}
-      ref={worldMapDomRef}
-      className='leading-none bg-arne16-nightblue w-fit'
-    >
-      {boardString}
-    </pre>
+    <div style={{ display: "flex" }}>
+      <pre
+        tabIndex={0}
+        ref={worldMapDomRef}
+        className='leading-none bg-arne16-nightblue w-fit'
+      >
+        {boardString}
+      </pre>
+      {notification}
+    </div>
   )
 }
