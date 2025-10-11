@@ -145,8 +145,21 @@ class TwoWayMap<T extends object> {
   map: Map<keyof T, T[keyof T]>
   reverseMap: Map<T[keyof T], keyof T>
   #internalObjRepresentation: T
+  onChange: (changedObject: T) => void = () => {
+    /* noop */
+  }
   constructor(srcObj: T) {
-    this.#internalObjRepresentation = { ...srcObj }
+    this.#internalObjRepresentation = new Proxy(
+      { ...srcObj },
+      {
+        set: (target, key, value) => {
+          console.log(`${String(key)} set to ${value}`)
+          target[key as keyof T] = value
+          this.onChange({ ...target })
+          return true
+        },
+      }
+    )
     const srcEntries = Object.entries(this.#internalObjRepresentation) as Array<
       [keyof T, T[keyof T]]
     >
@@ -217,6 +230,7 @@ class TwoWayMap<T extends object> {
       this.map.has(key as keyof T) || this.reverseMap.has(key as T[keyof T])
     )
   }
+
   set(key: keyof T, value: T[keyof T]) {
     if (key === value) {
       throw new Error(
@@ -235,15 +249,21 @@ class TwoWayMap<T extends object> {
 
 type coordPrimitive = `${bigint}, ${bigint}`
 class Board {
+  onBoardChange: (boardString: string) => void = () => {
+    /** noop */
+  }
   #emptySpace: string
   #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
   #playerGlyph: Glyph
+
   constructor(
     playerGlyph: Glyph,
     coordGlyphRecord: Record<coordPrimitive, Glyph> = {},
     emptySpace: string = "　"
   ) {
     this.#coordGlyphTwoWayMap = new TwoWayMap(coordGlyphRecord)
+    this.#coordGlyphTwoWayMap.onChange = () =>
+      this.onBoardChange(this.boardString)
     // Ensure its string passes Glyph string validation by instantiating a Glyph we immediately discard
     this.#emptySpace = new Glyph(emptySpace).toString()
     this.#playerGlyph = playerGlyph
@@ -272,7 +292,6 @@ class Board {
       `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`,
       glyph
     )
-    console.log(this.#coordGlyphTwoWayMap.toObject())
   }
 
   removeGlyph(coord: BoardCoordinate, throwIfAlreadyEmpty = false) {
@@ -366,7 +385,6 @@ class Board {
   get boardString() {
     let boardString = this.#generateBlankBoardString()
     for (const key in this.#coordGlyphTwoWayMap.toObject()) {
-      console.log(this.#coordGlyphTwoWayMap.toObject())
       const shouldBeGlyph = this.#coordGlyphTwoWayMap.get(key as coordPrimitive)
       if (shouldBeGlyph === undefined) {
         throw "Glyph cannot be undefined"
@@ -440,9 +458,18 @@ export default function WorldMap() {
   const worldMapDomRef = useRef<HTMLPreElement | null>(null)
 
   const playerGlyphRef = useRef(new Glyph("＠"))
-  const boardRef = useRef(new Board(playerGlyphRef.current))
+  const [boardString, setBoardString] = useState<string>()
+
+  const boardRef = useRef<Board>(undefined as unknown as Board)
+  // Prevent initializing board every render
+  if (boardRef.current === undefined) {
+    boardRef.current = new Board(playerGlyphRef.current)
+    boardRef.current.placeGlyph(new Glyph("米"), new BoardCoordinate(5, 5))
+    boardRef.current.placeGlyph(new Glyph("水"), new BoardCoordinate(20, 7))
+  }
+  boardRef.current.onBoardChange = setBoardString
+
   /** @todo Pass setBoardString to Board instance */
-  const [boardString, setBoardString] = useState<any>()
 
   const handleKeyboard = useCallback((event: KeyboardEvent) => {
     switch (event.key) {
@@ -498,8 +525,6 @@ export default function WorldMap() {
 
   /** @effectName onMountEffect() */
   useEffect(() => {
-    boardRef.current.placeGlyph(new Glyph("米"), new BoardCoordinate(5, 5))
-    boardRef.current.placeGlyph(new Glyph("水"), new BoardCoordinate(20, 7))
     setBoardString(boardRef.current.boardString)
   }, [])
 
@@ -509,7 +534,7 @@ export default function WorldMap() {
       ref={worldMapDomRef}
       className='leading-none bg-arne16-nightblue w-fit'
     >
-      {boardRef.current.boardString}
+      {boardString}
     </pre>
   )
 }
