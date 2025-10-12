@@ -55,11 +55,15 @@ const HEIGHT = 26
  *  @todo Research Add internationalization and localization feature for glyph names
  *  @todo PlayerGlyph subtype that interacts with Glyphs
  */
-class Glyph<A extends Record<string, () => void>> {
+class Glyph<A extends Record<string, () => void> = {}> {
   #string: string
   /** `NaN` if not in a board */
   indexInBoardString = NaN
+
   #actionsReceivable: A
+  get actionsReceivable() {
+    return this.#actionsReceivable
+  }
 
   static throwIfNotOneCharacter(s: string) {
     if (s.length !== 1) {
@@ -303,7 +307,9 @@ class Board {
   }
 
   submitAction(actionText: string) {
-    toast(`${actionText} the ${this.selectedGlyph}`)
+    actionText in (this.#selectedGlyph?.actionsReceivable ?? {})
+      ? toast(`${actionText} the ${this.#selectedGlyph}: SUCCESS`)
+      : toast(`${actionText} the ${this.#selectedGlyph}: FAIL`)
   }
 
   #emptySpace: string
@@ -313,7 +319,7 @@ class Board {
   get boardString() {
     return this.#boardString
   }
-  selectedGlyph: Glyph | null = null
+  #selectedGlyph: Glyph | null = null
 
   constructor(
     playerGlyph: Glyph,
@@ -343,7 +349,7 @@ class Board {
       }
     }
     // Ensure its string passes Glyph string validation by instantiating a Glyph we immediately discard
-    this.#emptySpace = new Glyph(emptySpace).toString()
+    this.#emptySpace = new Glyph(emptySpace, {}).toString()
     this.#playerGlyph = playerGlyph
     this.#coordGlyphTwoWayMap.set(
       `${WIDTH / 2}, ${HEIGHT / 2}`,
@@ -384,7 +390,7 @@ class Board {
             occupyingGlyph,
             failedToMoveGlyph,
           })
-          ;(isPlayer && (this.selectedGlyph = occupyingGlyph),
+          ;(isPlayer && (this.#selectedGlyph = occupyingGlyph),
             this.onNotify({ type: "glyphSelected", glyph: occupyingGlyph }),
             this.onNotify({
               type: "requestActionBySelectedGlyph",
@@ -448,9 +454,9 @@ class Board {
       destBoardCoordinate = dest
     }
 
-    if (isPlayer && this.selectedGlyph) {
-      const wasSelectedGlyph = this.selectedGlyph
-      this.selectedGlyph = null
+    if (isPlayer && this.#selectedGlyph) {
+      const wasSelectedGlyph = this.#selectedGlyph
+      this.#selectedGlyph = null
       this.onNotify({ type: "glyphDeselected", glyph: wasSelectedGlyph })
       this.onNotify({
         type: "cancelRequestActionBySelectedGlyph",
@@ -612,7 +618,7 @@ function tintSpecialGlyphs({
 export default function WorldMap() {
   const worldMapDomRef = useRef<HTMLPreElement | null>(null)
 
-  const playerGlyphRef = useRef(new Glyph("＠"))
+  const playerGlyphRef = useRef(new Glyph("＠", {}))
   const [boardString, setBoardString] = useState<string>("")
   const [notification, setNotification] = useState<JSX.Element>()
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
@@ -623,8 +629,22 @@ export default function WorldMap() {
   // Prevent initializing board every render
   if (boardRef.current === undefined) {
     boardRef.current = new Board(playerGlyphRef.current)
-    boardRef.current.placeGlyph(new Glyph("米"), new BoardCoordinate(5, 5))
-    boardRef.current.placeGlyph(new Glyph("水"), new BoardCoordinate(20, 7))
+    boardRef.current.placeGlyph(
+      new Glyph("米", {
+        eat: () => {
+          /*noop*/
+        },
+      }),
+      new BoardCoordinate(5, 5)
+    )
+    boardRef.current.placeGlyph(
+      new Glyph("水", {
+        drink: () => {
+          /*noop*/
+        },
+      }),
+      new BoardCoordinate(20, 7)
+    )
   }
   boardRef.current.onBoardChange = setBoardString
   boardRef.current.onNotify = (event) => {
@@ -720,6 +740,8 @@ export default function WorldMap() {
 
         break
     }
+    // Stop this event from entering text when we switch to the text input
+    event.preventDefault()
   }, [])
 
   useEffect(() => {
