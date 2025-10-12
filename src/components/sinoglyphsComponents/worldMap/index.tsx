@@ -286,6 +286,10 @@ type BoardNotifyEvent =
       type: "requestActionBySelectedGlyph"
       glyph: Glyph
     }
+  | {
+      type: "cancelRequestActionBySelectedGlyph"
+      glyph: Glyph
+    }
 class Board {
   onBoardChange: (boardString: string) => void = () => {
     /** noop */
@@ -440,6 +444,16 @@ class Board {
       )
     } else {
       destBoardCoordinate = dest
+    }
+
+    if (isPlayer && this.selectedGlyph) {
+      const wasSelectedGlyph = this.selectedGlyph
+      this.selectedGlyph = null
+      this.onNotify({ type: "glyphDeselected", glyph: wasSelectedGlyph })
+      this.onNotify({
+        type: "cancelRequestActionBySelectedGlyph",
+        glyph: wasSelectedGlyph,
+      })
     }
 
     const successfullyMovedGlyphToDest = this.placeGlyph(
@@ -640,11 +654,23 @@ export default function WorldMap() {
         }
         setSelectedGlyph(event.glyph)
         break
+      case "glyphDeselected":
+        if (Number.isNaN(event.glyph.indexInBoardString)) {
+          throw "Glyph string should have a real board index"
+        }
+        setSelectedGlyph(null)
+        break
       case "requestActionBySelectedGlyph":
         if (Number.isNaN(event.glyph.indexInBoardString)) {
           throw "Glyph string should have a real board index"
         }
         setShowTextInput(true)
+        break
+      case "cancelRequestActionBySelectedGlyph":
+        if (Number.isNaN(event.glyph.indexInBoardString)) {
+          throw "Glyph string should have a real board index"
+        }
+        setShowTextInput(false)
         break
     }
   }
@@ -710,6 +736,12 @@ export default function WorldMap() {
     setBoardString(boardRef.current.boardString)
   }, [])
 
+  const textInputElementRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (showTextInput) {
+      textInputElementRef.current?.focus()
+    }
+  }, [showTextInput])
   return (
     <>
       <div>
@@ -733,7 +765,7 @@ export default function WorldMap() {
             onChange={(event) =>
               setTextActionInputValue(event.currentTarget.value)
             }
-            ref={(el) => el?.focus()}
+            ref={textInputElementRef}
             type='text'
             className='bg-arne16-void m-1'
           />
@@ -741,7 +773,7 @@ export default function WorldMap() {
       </div>
       <div>
         {notification}
-        <ToastContainer theme='dark' />
+        <ToastContainer theme='dark' newestOnTop />
       </div>
     </>
   )
