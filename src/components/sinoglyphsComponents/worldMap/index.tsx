@@ -1,6 +1,19 @@
 import { JSX, useCallback, useEffect, useRef, useState } from "react"
 import { toast, ToastContainer } from "react-toastify"
 
+/**
+ * @todo add system on Glyphs that defines possible actions;
+ * Might need to account for overrides like for
+ * specific quests.
+ * @example
+ * Gather rice instead of
+ * eat rice
+ *
+ * Hard code actions results (callbacks) first
+ * but may eventually generalize to make
+ * writing boards / scenarios easer
+ */
+
 /** 80 wide by 26 tall */
 const mockMap = `ABCDEFGHIJKLMNOP
 12345678901234561234567890123456123456789012345612345678901234561234567890123456
