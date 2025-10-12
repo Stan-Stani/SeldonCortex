@@ -55,10 +55,11 @@ const HEIGHT = 26
  *  @todo Research Add internationalization and localization feature for glyph names
  *  @todo PlayerGlyph subtype that interacts with Glyphs
  */
-class Glyph {
+class Glyph<A extends Record<string, () => void>> {
   #string: string
   /** `NaN` if not in a board */
   indexInBoardString = NaN
+  #actionsReceivable: A
 
   static throwIfNotOneCharacter(s: string) {
     if (s.length !== 1) {
@@ -67,9 +68,10 @@ class Glyph {
     return true
   }
 
-  constructor(string: string) {
+  constructor(string: string, actionsReceivable: A) {
     Glyph.throwIfNotOneCharacter(string)
     this.#string = string
+    this.#actionsReceivable = actionsReceivable
   }
 
   toString = () => this.#string
