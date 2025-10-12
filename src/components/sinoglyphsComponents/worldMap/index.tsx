@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { JSX, useCallback, useEffect, useRef, useState } from "react"
+import { toast, ToastContainer } from "react-toastify"
 
 /** 80 wide by 26 tall */
 const mockMap = `ABCDEFGHIJKLMNOP
@@ -253,16 +254,31 @@ class TwoWayMap<T extends object> {
 }
 
 type coordPrimitive = `${bigint}, ${bigint}`
+
+type BoardNotifyEvent =
+  | {
+      type: "glyphSelected"
+      glyph: Glyph
+    }
+  | {
+      type: "glyphMoveBlocked"
+      occupyingGlyph: Glyph
+      failedToMoveGlyph: Glyph
+    }
+  | {
+      type: "glyphDeselected"
+      glyph: Glyph
+    }
 class Board {
   onBoardChange: (boardString: string) => void = () => {
     /** noop */
   }
-  onNotify: (
-    type: "glyphMoveBlocked",
-    data: { occupyingGlyph: Glyph; failedToMoveGlyph: Glyph }
-  ) => void = () => {
-    /** noop */
+
+  onNotify(event: BoardNotifyEvent): void {
+    event
+    // noop
   }
+
   #emptySpace: string
   #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
   #playerGlyph: Glyph
@@ -311,7 +327,8 @@ class Board {
     glyph: Glyph,
     coord: BoardCoordinate,
     /** @default throw */
-    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw"
+    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw",
+    isPlayer = false
   ): boolean {
     if (
       this.#coordGlyphTwoWayMap.has(
@@ -334,10 +351,13 @@ class Board {
             `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
           )!
           const failedToMoveGlyph = glyph
-          this.onNotify("glyphMoveBlocked", {
+          this.onNotify({
+            type: "glyphMoveBlocked",
             occupyingGlyph,
             failedToMoveGlyph,
           })
+          isPlayer &&
+            this.onNotify({ type: "glyphSelected", glyph: occupyingGlyph })
           return false
           break
       }
@@ -368,7 +388,8 @@ class Board {
     glyph: Glyph,
     dest: coordPrimitive | BoardCoordinate,
     /** @default throw */
-    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw"
+    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw",
+    isPlayer = false
   ): boolean {
     const originalPosTuple = this.#coordGlyphTwoWayMap
       .get(glyph)
@@ -398,13 +419,15 @@ class Board {
     const successfullyMovedGlyphToDest = this.placeGlyph(
       glyph,
       destBoardCoordinate,
-      targetOccupiedBehavior
+      targetOccupiedBehavior,
+      isPlayer
     )
     if (!successfullyMovedGlyphToDest) {
       return this.placeGlyph(
         glyph,
         originalBoardCoordinate,
-        targetOccupiedBehavior
+        targetOccupiedBehavior,
+        isPlayer
       )
     }
 
@@ -415,7 +438,8 @@ class Board {
     glyph: Glyph,
     direction: "up" | "right" | "down" | "left",
     /** @default throw */
-    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw"
+    targetOccupiedBehavior: "overwrite" | "throw" | "notify" = "throw",
+    isPlayer = false
   ): boolean {
     const originalPosTuple = this.#coordGlyphTwoWayMap
       .get(glyph)
@@ -430,28 +454,32 @@ class Board {
         return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] - 1),
-          targetOccupiedBehavior
+          targetOccupiedBehavior,
+          isPlayer
         )
         break
       case "right":
         return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0] + 1, originalPosTuple[1]),
-          targetOccupiedBehavior
+          targetOccupiedBehavior,
+          isPlayer
         )
         break
       case "down":
         return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0], originalPosTuple[1] + 1),
-          targetOccupiedBehavior
+          targetOccupiedBehavior,
+          isPlayer
         )
         break
       case "left":
         return this.moveGlyph(
           glyph,
           new BoardCoordinate(originalPosTuple[0] - 1, originalPosTuple[1]),
-          targetOccupiedBehavior
+          targetOccupiedBehavior,
+          isPlayer
         )
         break
     }
@@ -544,7 +572,7 @@ export default function WorldMap() {
 
   const playerGlyphRef = useRef(new Glyph("＠"))
   const [boardString, setBoardString] = useState<string>("")
-  const [notification, setNotification] = useState<string>()
+  const [notification, setNotification] = useState<JSX.Element>()
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
 
   const boardRef = useRef<Board>(undefined as unknown as Board)
@@ -555,15 +583,35 @@ export default function WorldMap() {
     boardRef.current.placeGlyph(new Glyph("水"), new BoardCoordinate(20, 7))
   }
   boardRef.current.onBoardChange = setBoardString
-  boardRef.current.onNotify = (type, data) => {
-    setNotification(`${type}: ${data.occupyingGlyph.indexInBoardString}`)
+  boardRef.current.onNotify = (event) => {
+    const notificationElement = (
+      <span>
+        Type: {event.type}
+        <br />
+        <pre>{JSON.stringify({ ...event, type: undefined }, undefined, 2)}</pre>
+      </span>
+    )
+    setNotification(notificationElement)
+    /** 
+     * @todo Need to prevent these toasts in production env 
+     * @todo style with arne16
+    */
+    toast(notificationElement, {
+      style: { width: "max-content" },
+    })
 
-    switch (type) {
+    switch (event.type) {
       case "glyphMoveBlocked":
-        if (Number.isNaN(data.occupyingGlyph.indexInBoardString)) {
+        if (Number.isNaN(event.occupyingGlyph.indexInBoardString)) {
           throw "Glyph string should have a real board index"
         }
-        setSelectedGlyph(data.occupyingGlyph)
+        break
+      case "glyphSelected":
+        if (Number.isNaN(event.glyph.indexInBoardString)) {
+          throw "Glyph string should have a real board index"
+        }
+        setSelectedGlyph(event.glyph)
+        break
     }
   }
 
@@ -574,7 +622,8 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "up",
-          "notify"
+          "notify",
+          true
         )
         setBoardString(boardRef.current.boardString)
         break
@@ -582,7 +631,8 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "left",
-          "notify"
+          "notify",
+          true
         )
         setBoardString(boardRef.current.boardString)
 
@@ -591,7 +641,8 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "down",
-          "notify"
+          "notify",
+          true
         )
         setBoardString(boardRef.current.boardString)
 
@@ -600,7 +651,8 @@ export default function WorldMap() {
         boardRef.current.moveGlyphRelativeToSelf(
           playerGlyphRef.current,
           "right",
-          "notify"
+          "notify",
+          true
         )
         setBoardString(boardRef.current.boardString)
 
@@ -625,15 +677,23 @@ export default function WorldMap() {
   }, [])
 
   return (
-    <div style={{ display: "flex" }}>
-      <pre
-        tabIndex={0}
-        ref={worldMapDomRef}
-        className='leading-none bg-arne16-void w-fit'
-      >
-        {tintSpecialGlyphs({ boardString, selectedGlyph })}
-      </pre>
-      {notification}
-    </div>
+    <>
+      <div>
+        <pre
+          tabIndex={0}
+          ref={worldMapDomRef}
+          className='leading-none bg-arne16-void w-fit'
+        >
+          {tintSpecialGlyphs({ boardString, selectedGlyph })}
+        </pre>
+      </div>
+      <div>
+        <input type='text' className='bg-arne16-void m-1' />
+      </div>
+      <div>
+        {notification}
+        <ToastContainer theme='dark' />
+      </div>
+    </>
   )
 }

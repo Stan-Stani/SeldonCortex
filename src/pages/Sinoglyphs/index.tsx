@@ -31,7 +31,7 @@ function Sinoglyphs() {
   return (
     <div
       id='sinoglyphs'
-      className='h-full text-arne16-white font-sarasa bg-arne16-nightblue'
+      className='h-min min-h-full text-arne16-white font-sarasa bg-arne16-nightblue'
     >
       <header className='bg-arne16-slimegreen'>hello</header>
 
