@@ -27,18 +27,12 @@ function Sinoglyphs() {
   // Dynamic import to prevent tailwind messing with root styles for main page of website
   import("../../tailwind.css")
   const router = useContext(RouterContext)
-  const [state, setState] = useState<State>({
-    isBodyScrolledToTop: true,
-    blogPostHtml: {
-      __html: "<p>Hmm... the blog's not loading for some reason... :(</p>",
-    },
-    blogArr: [],
-    currentBlogPostIndex: 0,
-    portfolioPresentation: "grid",
-  })
 
   return (
-    <div id='sinoglyphs' className='h-full text-arne16-white font-sarasa bg-arne16-void'>
+    <div
+      id='sinoglyphs'
+      className='h-full text-arne16-white font-sarasa bg-arne16-nightblue'
+    >
       <header className='bg-arne16-slimegreen'>hello</header>
 
       <WorldMap />

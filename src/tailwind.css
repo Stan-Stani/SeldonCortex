@@ -10,9 +10,9 @@
 
 /* https://lospec.com/palette-list/arne-16  */
 @theme {
-      --font-sarasa: "Sarasa Mono J", ui-monospace, monospace;
-    --font-mono: "Sarasa Mono J", ui-monospace, monospace;
-  
+  --font-sarasa: "Sarasa Mono J", ui-monospace, monospace;
+  --font-mono: "Sarasa Mono J", ui-monospace, monospace;
+
   --color-arne16-void: #000000;
   --color-arne16-gray: #9d9d9d;
   --color-arne16-white: #ffffff;

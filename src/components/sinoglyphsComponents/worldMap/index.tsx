@@ -43,6 +43,9 @@ const HEIGHT = 26
  */
 class Glyph {
   #string: string
+  /** `NaN` if not in a board */
+  indexInBoardString = NaN
+
   static throwIfNotOneCharacter(s: string) {
     if (s.length !== 1) {
       throw new Error("Glyph must be one character")
@@ -56,8 +59,6 @@ class Glyph {
   }
 
   toString = () => this.#string
-  /** @todo don't use this for logging / display */
-  toJSON = () => this.#string
 }
 
 function clamp(number: number, min: number, max: number) {
@@ -155,10 +156,12 @@ class TwoWayMap<T extends object> {
       { ...srcObj },
       {
         set: (target, key, value) => {
-          console.log(`${String(key)} set to ${value}`)
           target[key as keyof T] = value
           this.onChange({ ...target })
           return true
+        },
+        deleteProperty: (target, p) => {
+          return delete target[p as keyof T]
         },
       }
     )
@@ -263,6 +266,10 @@ class Board {
   #emptySpace: string
   #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
   #playerGlyph: Glyph
+  #boardString = ""
+  get boardString() {
+    return this.#boardString
+  }
 
   constructor(
     playerGlyph: Glyph,
@@ -270,8 +277,27 @@ class Board {
     emptySpace: string = "　"
   ) {
     this.#coordGlyphTwoWayMap = new TwoWayMap(coordGlyphRecord)
-    this.#coordGlyphTwoWayMap.onChange = () =>
+    this.#coordGlyphTwoWayMap.onChange = () => {
       this.onBoardChange(this.boardString)
+
+      let boardString = this.#generateBlankBoardString()
+      for (const key in this.#coordGlyphTwoWayMap.toObject()) {
+        const shouldBeGlyph = this.#coordGlyphTwoWayMap.get(
+          key as coordPrimitive
+        )
+        if (shouldBeGlyph === undefined) {
+          throw "Glyph cannot be undefined"
+        }
+        let glyph = shouldBeGlyph
+        boardString = this.#writeGlyphToBoardString(
+          key as coordPrimitive,
+          glyph,
+          boardString
+        )
+
+        this.#boardString = boardString
+      }
+    }
     // Ensure its string passes Glyph string validation by instantiating a Glyph we immediately discard
     this.#emptySpace = new Glyph(emptySpace).toString()
     this.#playerGlyph = playerGlyph
@@ -308,7 +334,6 @@ class Board {
             `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
           )!
           const failedToMoveGlyph = glyph
-          console.dir({ occupyingGlyph, failedToMoveGlyph }, { depth: null })
           this.onNotify("glyphMoveBlocked", {
             occupyingGlyph,
             failedToMoveGlyph,
@@ -432,24 +457,6 @@ class Board {
     }
   }
 
-  get boardString() {
-    let boardString = this.#generateBlankBoardString()
-    for (const key in this.#coordGlyphTwoWayMap.toObject()) {
-      const shouldBeGlyph = this.#coordGlyphTwoWayMap.get(key as coordPrimitive)
-      if (shouldBeGlyph === undefined) {
-        throw "Glyph cannot be undefined"
-      }
-      let glyph = shouldBeGlyph
-      boardString = this.#writeGlyphToBoardString(
-        key as coordPrimitive,
-        glyph,
-        boardString
-      )
-    }
-
-    return boardString
-  }
-
   #generateBlankBoardString(width = WIDTH, height = HEIGHT) {
     let blankBoardString = ""
 
@@ -500,16 +507,45 @@ class Board {
       glyph +
       rows[coordObj.y - 1].slice(coordObj.x)
 
+    glyph.indexInBoardString =
+      // Width + 1 char for new line
+      (WIDTH + 1) *
+        // * number of lines above line of glyph
+        (coordObj.y - 1) +
+      // + partial line - 1 for index starting at 0
+      coordObj.x -
+      1
     return rows.join("\n")
   }
+}
+
+function tintSpecialGlyphs({
+  boardString,
+  selectedGlyph,
+}: {
+  boardString: string
+  selectedGlyph: Glyph | null
+}) {
+  if (selectedGlyph === null) {
+    return boardString
+  }
+
+  return (
+    <>
+      {boardString.slice(0, selectedGlyph.indexInBoardString)}
+      <span className='text-arne16-yellow'>{selectedGlyph.toString()}</span>
+      {boardString.slice(selectedGlyph.indexInBoardString + 1)}
+    </>
+  )
 }
 
 export default function WorldMap() {
   const worldMapDomRef = useRef<HTMLPreElement | null>(null)
 
   const playerGlyphRef = useRef(new Glyph("＠"))
-  const [boardString, setBoardString] = useState<string>()
+  const [boardString, setBoardString] = useState<string>("")
   const [notification, setNotification] = useState<string>()
+  const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
 
   const boardRef = useRef<Board>(undefined as unknown as Board)
   // Prevent initializing board every render
@@ -520,10 +556,16 @@ export default function WorldMap() {
   }
   boardRef.current.onBoardChange = setBoardString
   boardRef.current.onNotify = (type, data) => {
-    setNotification(`${type}: ${JSON.stringify(data)}`)
-  }
+    setNotification(`${type}: ${data.occupyingGlyph.indexInBoardString}`)
 
-  /** @todo Pass setBoardString to Board instance */
+    switch (type) {
+      case "glyphMoveBlocked":
+        if (Number.isNaN(data.occupyingGlyph.indexInBoardString)) {
+          throw "Glyph string should have a real board index"
+        }
+        setSelectedGlyph(data.occupyingGlyph)
+    }
+  }
 
   const handleKeyboard = useCallback((event: KeyboardEvent) => {
     switch (event.key) {
@@ -587,9 +629,9 @@ export default function WorldMap() {
       <pre
         tabIndex={0}
         ref={worldMapDomRef}
-        className='leading-none bg-arne16-nightblue w-fit'
+        className='leading-none bg-arne16-void w-fit'
       >
-        {boardString}
+        {tintSpecialGlyphs({ boardString, selectedGlyph })}
       </pre>
       {notification}
     </div>
