@@ -269,6 +269,10 @@ type BoardNotifyEvent =
       type: "glyphDeselected"
       glyph: Glyph
     }
+  | {
+      type: "requestActionBySelectedGlyph"
+      glyph: Glyph
+    }
 class Board {
   onBoardChange: (boardString: string) => void = () => {
     /** noop */
@@ -279,6 +283,10 @@ class Board {
     // noop
   }
 
+  submitAction(actionText: string) {
+    toast(`${actionText} the ${this.selectedGlyph}`)
+  }
+
   #emptySpace: string
   #coordGlyphTwoWayMap: TwoWayMap<Record<coordPrimitive, Glyph>>
   #playerGlyph: Glyph
@@ -286,6 +294,7 @@ class Board {
   get boardString() {
     return this.#boardString
   }
+  selectedGlyph: Glyph | null = null
 
   constructor(
     playerGlyph: Glyph,
@@ -356,8 +365,12 @@ class Board {
             occupyingGlyph,
             failedToMoveGlyph,
           })
-          isPlayer &&
-            this.onNotify({ type: "glyphSelected", glyph: occupyingGlyph })
+          ;(isPlayer && (this.selectedGlyph = occupyingGlyph),
+            this.onNotify({ type: "glyphSelected", glyph: occupyingGlyph }),
+            this.onNotify({
+              type: "requestActionBySelectedGlyph",
+              glyph: occupyingGlyph,
+            }))
           return false
           break
       }
@@ -574,6 +587,8 @@ export default function WorldMap() {
   const [boardString, setBoardString] = useState<string>("")
   const [notification, setNotification] = useState<JSX.Element>()
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
+  const [showTextInput, setShowTextInput] = useState(false)
+  const [textActionInputValue, setTextActionInputValue] = useState("")
 
   const boardRef = useRef<Board>(undefined as unknown as Board)
   // Prevent initializing board every render
@@ -592,10 +607,10 @@ export default function WorldMap() {
       </span>
     )
     setNotification(notificationElement)
-    /** 
-     * @todo Need to prevent these toasts in production env 
+    /**
+     * @todo Need to prevent these toasts in production env
      * @todo style with arne16
-    */
+     */
     toast(notificationElement, {
       style: { width: "max-content" },
     })
@@ -611,6 +626,12 @@ export default function WorldMap() {
           throw "Glyph string should have a real board index"
         }
         setSelectedGlyph(event.glyph)
+        break
+      case "requestActionBySelectedGlyph":
+        if (Number.isNaN(event.glyph.indexInBoardString)) {
+          throw "Glyph string should have a real board index"
+        }
+        setShowTextInput(true)
         break
     }
   }
@@ -688,7 +709,22 @@ export default function WorldMap() {
         </pre>
       </div>
       <div>
-        <input type='text' className='bg-arne16-void m-1' />
+        {showTextInput && (
+          <input
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                toast(textActionInputValue)
+                boardRef.current.submitAction(textActionInputValue)
+              }
+            }}
+            onChange={(event) =>
+              setTextActionInputValue(event.currentTarget.value)
+            }
+            ref={(el) => el?.focus()}
+            type='text'
+            className='bg-arne16-void m-1'
+          />
+        )}
       </div>
       <div>
         {notification}
