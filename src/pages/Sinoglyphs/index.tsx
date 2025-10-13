@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext } from "react"
 import RouterContext from "../../components/contexts/router/RouterContext"
 import WorldMap from "../../components/sinoglyphsComponents/worldMap"
 
@@ -33,7 +33,7 @@ function Sinoglyphs() {
       id='sinoglyphs'
       className='h-min min-h-full text-arne16-white font-sarasa bg-arne16-nightblue'
     >
-      <header className='bg-arne16-slimegreen'>hello</header>
+      <header className='bg-arne16-nightblue'>Sinoglyphs</header>
 
       <WorldMap />
     </div>

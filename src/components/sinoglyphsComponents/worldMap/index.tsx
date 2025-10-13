@@ -55,7 +55,12 @@ const HEIGHT = 26
  *  @todo Research Add internationalization and localization feature for glyph names
  *  @todo PlayerGlyph subtype that interacts with Glyphs
  */
-class Glyph<A extends Record<string, () => void> = {}> {
+class Glyph<
+  A extends Record<string, (glyph: Glyph) => void> = Record<
+    string,
+    (glyph: Glyph) => void
+  >,
+> {
   #string: string
   /** `NaN` if not in a board */
   indexInBoardString = NaN
@@ -181,7 +186,9 @@ class TwoWayMap<T extends object> {
           return true
         },
         deleteProperty: (target, p) => {
-          return delete target[p as keyof T]
+          const deleteSuccessful = delete target[p as keyof T]
+          this.onChange({ ...target })
+          return deleteSuccessful
         },
       }
     )
@@ -230,11 +237,11 @@ class TwoWayMap<T extends object> {
       delete this.#internalObjRepresentation[twoWayKey as keyof T]
     } else if (revMapHasKey) {
       const value = this.reverseMap.get(twoWayKey as T[keyof T]) as keyof T
-      delete this.#internalObjRepresentation[value]
       isDeleteFromRevMapSuccess = this.reverseMap.delete(
         twoWayKey as T[keyof T]
       )
       isDeleteFromMapSuccess = this.map.delete(value)
+      delete this.#internalObjRepresentation[value]
     }
 
     if (
@@ -307,9 +314,15 @@ class Board {
   }
 
   submitAction(actionText: string) {
-    actionText in (this.#selectedGlyph?.actionsReceivable ?? {})
-      ? toast(`${actionText} the ${this.#selectedGlyph}: SUCCESS`)
-      : toast(`${actionText} the ${this.#selectedGlyph}: FAIL`)
+    if (this.#selectedGlyph === null) {
+      throw "Cannot submit action if no selected glyph"
+    }
+    if (actionText in this.#selectedGlyph.actionsReceivable) {
+      toast(`${actionText} the ${this.#selectedGlyph}: SUCCESS`)
+      this.#selectedGlyph.actionsReceivable[actionText](this.#selectedGlyph)
+    } else {
+      toast(`${actionText} the ${this.#selectedGlyph}: FAIL`)
+    }
   }
 
   #emptySpace: string
@@ -327,11 +340,9 @@ class Board {
     emptySpace: string = "　"
   ) {
     this.#coordGlyphTwoWayMap = new TwoWayMap(coordGlyphRecord)
-    this.#coordGlyphTwoWayMap.onChange = () => {
-      this.onBoardChange(this.boardString)
-
+    this.#coordGlyphTwoWayMap.onChange = (object) => {
       let boardString = this.#generateBlankBoardString()
-      for (const key in this.#coordGlyphTwoWayMap.toObject()) {
+      for (const key in object) {
         const shouldBeGlyph = this.#coordGlyphTwoWayMap.get(
           key as coordPrimitive
         )
@@ -345,7 +356,19 @@ class Board {
           boardString
         )
 
+        if (
+          this.#selectedGlyph &&
+          !this.#coordGlyphTwoWayMap.has(this.#selectedGlyph)
+        ) {
+          this.onNotify({ type: "glyphDeselected", glyph: this.#selectedGlyph })
+          this.onNotify({
+            type: "cancelRequestActionBySelectedGlyph",
+            glyph: this.#selectedGlyph,
+          })
+          this.#selectedGlyph = null
+        }
         this.#boardString = boardString
+        this.onBoardChange(this.#boardString)
       }
     }
     // Ensure its string passes Glyph string validation by instantiating a Glyph we immediately discard
@@ -408,18 +431,32 @@ class Board {
     }
   }
 
-  removeGlyph(coord: BoardCoordinate, throwIfAlreadyEmpty = false) {
-    const retrievedMember = this.#coordGlyphTwoWayMap.get(
-      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
-    )
+  removeGlyph(coord: BoardCoordinate, throwIfAlreadyEmpty?: boolean): void
+  removeGlyph(glyph: Glyph, throwIfAlreadyEmpty?: boolean): void
+  removeGlyph(
+    coordOrGlyph: BoardCoordinate | Glyph,
+    throwIfAlreadyEmpty = false
+  ): void {
+    if (coordOrGlyph instanceof BoardCoordinate) {
+      const coord = coordOrGlyph
+      const retrievedMember = this.#coordGlyphTwoWayMap.get(
+        `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
+      )
 
-    if (retrievedMember && throwIfAlreadyEmpty) {
-      throw new Error("Attempted to remove empty space")
+      if (retrievedMember && throwIfAlreadyEmpty) {
+        throw new Error("Attempted to remove empty space")
+      }
+
+      this.#coordGlyphTwoWayMap.delete(
+        `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
+      )
+    } else {
+      const glyph = coordOrGlyph
+      if (!this.#coordGlyphTwoWayMap.has(glyph)) {
+        throw new Error("Glyph does not exist in board's two-way map")
+      }
+      this.#coordGlyphTwoWayMap.delete(glyph)
     }
-
-    this.#coordGlyphTwoWayMap.delete(
-      `${coord.x as unknown as bigint}, ${coord.y as unknown as bigint}`
-    )
   }
 
   moveGlyph(
@@ -605,6 +642,7 @@ function tintSpecialGlyphs({
   if (selectedGlyph === null) {
     return boardString
   }
+  console.log({ selectedGlyph })
 
   return (
     <>
@@ -625,28 +663,37 @@ export default function WorldMap() {
   const [showTextInput, setShowTextInput] = useState(false)
   const [textActionInputValue, setTextActionInputValue] = useState("")
 
+  const [hunger, setHunger] = useState("（>﹏<）")
+  const [thirst, setThirst] = useState("（>﹏<）")
+
   const boardRef = useRef<Board>(undefined as unknown as Board)
   // Prevent initializing board every render
   if (boardRef.current === undefined) {
     boardRef.current = new Board(playerGlyphRef.current)
     boardRef.current.placeGlyph(
       new Glyph("米", {
-        eat: () => {
-          /*noop*/
+        eat: (self) => {
+          // debugger
+          boardRef.current.removeGlyph(self)
+          setHunger("(＾▽＾)")
         },
       }),
-      new BoardCoordinate(5, 5)
+      new BoardCoordinate(12, 13)
     )
     boardRef.current.placeGlyph(
       new Glyph("水", {
-        drink: () => {
-          /*noop*/
+        drink: (self) => {
+          boardRef.current.removeGlyph(self)
+          setThirst("(＾▽＾)")
         },
       }),
       new BoardCoordinate(20, 7)
     )
   }
-  boardRef.current.onBoardChange = setBoardString
+  boardRef.current.onBoardChange = (boardString) => {
+    console.log(boardString)
+    setBoardString(boardString)
+  }
   boardRef.current.onNotify = (event) => {
     const notificationElement = (
       <span>
@@ -707,7 +754,6 @@ export default function WorldMap() {
           "notify",
           true
         )
-        setBoardString(boardRef.current.boardString)
         break
       case "a":
         boardRef.current.moveGlyphRelativeToSelf(
@@ -716,7 +762,6 @@ export default function WorldMap() {
           "notify",
           true
         )
-        setBoardString(boardRef.current.boardString)
 
         break
       case "s":
@@ -726,7 +771,6 @@ export default function WorldMap() {
           "notify",
           true
         )
-        setBoardString(boardRef.current.boardString)
 
         break
       case "d":
@@ -736,7 +780,6 @@ export default function WorldMap() {
           "notify",
           true
         )
-        setBoardString(boardRef.current.boardString)
 
         break
     }
@@ -766,9 +809,10 @@ export default function WorldMap() {
       textInputElementRef.current?.focus()
     }
   }, [showTextInput])
+
   return (
     <>
-      <div>
+      <div className='w-fit'>
         <pre
           tabIndex={0}
           ref={worldMapDomRef}
@@ -776,29 +820,36 @@ export default function WorldMap() {
         >
           {tintSpecialGlyphs({ boardString, selectedGlyph })}
         </pre>
+        <div className='flex flex-row'>
+          <div>
+            {showTextInput && (
+              <input
+                value={textActionInputValue}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    toast(textActionInputValue)
+                    boardRef.current.submitAction(textActionInputValue)
+                    setTextActionInputValue("")
+                  }
+                }}
+                onChange={(event) =>
+                  setTextActionInputValue(event.currentTarget.value)
+                }
+                ref={textInputElementRef}
+                type='text'
+                className='bg-arne16-void m-1'
+              />
+            )}
+          </div>
+          <div className='ml-auto'>
+            <div>Hunger: {hunger}</div>
+            <div>Thirst: {thirst}</div>
+            {/* {notification} */}
+          </div>
+        </div>
       </div>
-      <div>
-        {showTextInput && (
-          <input
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                toast(textActionInputValue)
-                boardRef.current.submitAction(textActionInputValue)
-              }
-            }}
-            onChange={(event) =>
-              setTextActionInputValue(event.currentTarget.value)
-            }
-            ref={textInputElementRef}
-            type='text'
-            className='bg-arne16-void m-1'
-          />
-        )}
-      </div>
-      <div>
-        {notification}
-        <ToastContainer theme='dark' newestOnTop />
-      </div>
+
+      <ToastContainer theme='dark' newestOnTop />
     </>
   )
 }
