@@ -744,59 +744,49 @@ export default function WorldMap() {
     }
   }
 
-  const handleKeyboard = useCallback((event: KeyboardEvent) => {
-    switch (event.key) {
-      /** @Todo add asdf mode */
-      case "w":
-        boardRef.current.moveGlyphRelativeToSelf(
-          playerGlyphRef.current,
-          "up",
-          "notify",
-          true
-        )
-        break
-      case "a":
-        boardRef.current.moveGlyphRelativeToSelf(
-          playerGlyphRef.current,
-          "left",
-          "notify",
-          true
-        )
+  const handleKeyboard: React.KeyboardEventHandler<HTMLPreElement> =
+    useCallback((event) => {
+      switch (event.key) {
+        /** @Todo add asdf mode */
+        case "w":
+          boardRef.current.moveGlyphRelativeToSelf(
+            playerGlyphRef.current,
+            "up",
+            "notify",
+            true
+          )
+          break
+        case "a":
+          boardRef.current.moveGlyphRelativeToSelf(
+            playerGlyphRef.current,
+            "left",
+            "notify",
+            true
+          )
 
-        break
-      case "s":
-        boardRef.current.moveGlyphRelativeToSelf(
-          playerGlyphRef.current,
-          "down",
-          "notify",
-          true
-        )
+          break
+        case "s":
+          boardRef.current.moveGlyphRelativeToSelf(
+            playerGlyphRef.current,
+            "down",
+            "notify",
+            true
+          )
 
-        break
-      case "d":
-        boardRef.current.moveGlyphRelativeToSelf(
-          playerGlyphRef.current,
-          "right",
-          "notify",
-          true
-        )
+          break
+        case "d":
+          boardRef.current.moveGlyphRelativeToSelf(
+            playerGlyphRef.current,
+            "right",
+            "notify",
+            true
+          )
 
-        break
-    }
-    // Stop this event from entering text when we switch to the text input
-    event.preventDefault()
-  }, [])
-
-  useEffect(() => {
-    if (worldMapDomRef.current) {
-      worldMapDomRef.current.addEventListener("keydown", handleKeyboard)
-    }
-
-    const worldMapDomElement = worldMapDomRef.current
-
-    return () =>
-      worldMapDomElement?.removeEventListener("keydown", handleKeyboard)
-  }, [handleKeyboard])
+          break
+      }
+      // Stop this event from entering text when we switch to the text input
+      event.preventDefault()
+    }, [])
 
   /** @effectName onMountEffect() */
   useEffect(() => {
@@ -810,12 +800,15 @@ export default function WorldMap() {
     }
   }, [showTextInput])
 
+  const boardDisplayElementRef = useRef<HTMLPreElement>(null)
+
   return (
     <>
       <div className='w-fit'>
         <pre
+          ref={boardDisplayElementRef}
           tabIndex={0}
-          ref={worldMapDomRef}
+          onKeyDown={handleKeyboard}
           className='leading-none bg-arne16-void w-fit'
         >
           {tintSpecialGlyphs({ boardString, selectedGlyph })}
@@ -826,10 +819,14 @@ export default function WorldMap() {
               <input
                 value={textActionInputValue}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    toast(textActionInputValue)
-                    boardRef.current.submitAction(textActionInputValue)
-                    setTextActionInputValue("")
+                  switch (event.key) {
+                    // @ts-expect-error - intentional fall through
+                    case "Enter":
+                      toast(textActionInputValue)
+                      boardRef.current.submitAction(textActionInputValue)
+                    case "Escape":
+                      setTextActionInputValue("")
+                      boardDisplayElementRef.current?.focus()
                   }
                 }}
                 onChange={(event) =>
