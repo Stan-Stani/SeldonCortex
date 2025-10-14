@@ -1,3 +1,5 @@
+// @refresh reset
+
 import { JSX, useCallback, useEffect, useRef, useState } from "react"
 import { toast, ToastContainer } from "react-toastify"
 
@@ -12,6 +14,11 @@ import { toast, ToastContainer } from "react-toastify"
  * Hard code actions results (callbacks) first
  * but may eventually generalize to make
  * writing boards / scenarios easer
+ * 
+ * 
+ * 
+ * 
+ * @todo Glitch effect on selected glyph for submitting incorrect action
  */
 
 /** 80 wide by 26 tall */
@@ -65,6 +72,13 @@ class Glyph<
   /** `NaN` if not in a board */
   indexInBoardString = NaN
 
+  #name: { english: string }
+  get name() {
+    return this.#name
+  }
+
+  description: string
+
   #actionsReceivable: A
   get actionsReceivable() {
     return this.#actionsReceivable
@@ -77,10 +91,32 @@ class Glyph<
     return true
   }
 
-  constructor(string: string, actionsReceivable: A) {
+  static throwIfWhitespace(s: string) {
+    if (s.trim().length === 0) {
+      throw new Error("String cannot be empty or only whitespace")
+    }
+  }
+
+  constructor({
+    string,
+    name,
+    actionsReceivable,
+    description,
+  }: {
+    string: string
+    name: { english: string } | string
+    actionsReceivable: A
+    description: string
+  }) {
     Glyph.throwIfNotOneCharacter(string)
     this.#string = string
+    this.#name = typeof name === "string" ? { english: name } : name
+    Object.entries(name).forEach(
+      (n) => Glyph.throwIfWhitespace(n[0]) ?? Glyph.throwIfWhitespace(n[1])
+    )
     this.#actionsReceivable = actionsReceivable
+    Glyph.throwIfWhitespace(description)
+    this.description = description
   }
 
   toString = () => this.#string
@@ -313,15 +349,17 @@ class Board {
     // noop
   }
 
-  submitAction(actionText: string) {
+  submitAction(actionText: string, name: string) {
     if (this.#selectedGlyph === null) {
       throw "Cannot submit action if no selected glyph"
     }
-    if (actionText in this.#selectedGlyph.actionsReceivable) {
-      toast(`${actionText} the ${this.#selectedGlyph}: SUCCESS`)
+    if (
+      actionText in this.#selectedGlyph.actionsReceivable &&
+      name === this.#selectedGlyph.name.english
+    ) {
       this.#selectedGlyph.actionsReceivable[actionText](this.#selectedGlyph)
     } else {
-      toast(`${actionText} the ${this.#selectedGlyph}: FAIL`)
+      /** empty for now */
     }
   }
 
@@ -360,19 +398,19 @@ class Board {
           this.#selectedGlyph &&
           !this.#coordGlyphTwoWayMap.has(this.#selectedGlyph)
         ) {
-          this.onNotify({ type: "glyphDeselected", glyph: this.#selectedGlyph })
-          this.onNotify({
-            type: "cancelRequestActionBySelectedGlyph",
-            glyph: this.#selectedGlyph,
-          })
-          this.#selectedGlyph = null
+          this.deselectGlyph()
         }
         this.#boardString = boardString
         this.onBoardChange(this.#boardString)
       }
     }
     // Ensure its string passes Glyph string validation by instantiating a Glyph we immediately discard
-    this.#emptySpace = new Glyph(emptySpace, {}).toString()
+    this.#emptySpace = new Glyph({
+      string: emptySpace,
+      name: { english: "empty space" },
+      description: "noop",
+      actionsReceivable: {},
+    }).toString()
     this.#playerGlyph = playerGlyph
     this.#coordGlyphTwoWayMap.set(
       `${WIDTH / 2}, ${HEIGHT / 2}`,
@@ -492,13 +530,7 @@ class Board {
     }
 
     if (isPlayer && this.#selectedGlyph) {
-      const wasSelectedGlyph = this.#selectedGlyph
-      this.#selectedGlyph = null
-      this.onNotify({ type: "glyphDeselected", glyph: wasSelectedGlyph })
-      this.onNotify({
-        type: "cancelRequestActionBySelectedGlyph",
-        glyph: wasSelectedGlyph,
-      })
+      this.deselectGlyph()
     }
 
     const successfullyMovedGlyphToDest = this.placeGlyph(
@@ -630,6 +662,20 @@ class Board {
       1
     return rows.join("\n")
   }
+
+  /** Force deselection of selectedGlyph, if one is selected */
+  deselectGlyph(): boolean {
+    if (this.#selectedGlyph) {
+      this.onNotify({ type: "glyphDeselected", glyph: this.#selectedGlyph })
+      this.onNotify({
+        type: "cancelRequestActionBySelectedGlyph",
+        glyph: this.#selectedGlyph,
+      })
+      this.#selectedGlyph = null
+      return true
+    }
+    return false
+  }
 }
 
 function tintSpecialGlyphs({
@@ -654,11 +700,15 @@ function tintSpecialGlyphs({
 }
 
 export default function WorldMap() {
-  const worldMapDomRef = useRef<HTMLPreElement | null>(null)
-
-  const playerGlyphRef = useRef(new Glyph("＠", {}))
+  const playerGlyphRef = useRef(
+    new Glyph({
+      string: "＠",
+      name: "You",
+      description: "This is you, silly!",
+      actionsReceivable: {},
+    })
+  )
   const [boardString, setBoardString] = useState<string>("")
-  const [notification, setNotification] = useState<JSX.Element>()
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
   const [showTextInput, setShowTextInput] = useState(false)
   const [textActionInputValue, setTextActionInputValue] = useState("")
@@ -671,24 +721,48 @@ export default function WorldMap() {
   if (boardRef.current === undefined) {
     boardRef.current = new Board(playerGlyphRef.current)
     boardRef.current.placeGlyph(
-      new Glyph("米", {
-        eat: (self) => {
-          // debugger
-          boardRef.current.removeGlyph(self)
-          setHunger("(＾▽＾)")
+      new Glyph({
+        string: "米",
+        name: "rice",
+        description: "A giant cauldron filled with a fluffy white substance.",
+        actionsReceivable: {
+          eat: (self) => {
+            // debugger
+            boardRef.current.removeGlyph(self)
+            setHunger("(＾▽＾)")
+          },
         },
       }),
       new BoardCoordinate(12, 13)
     )
     boardRef.current.placeGlyph(
-      new Glyph("水", {
-        drink: (self) => {
-          boardRef.current.removeGlyph(self)
-          setThirst("(＾▽＾)")
+      new Glyph({
+        string: "水",
+        name: "water",
+        description:
+          "A hollow cylinder made of roughly cut stone blocks. There's a liquid inside.",
+        actionsReceivable: {
+          drink: (self) => {
+            boardRef.current.removeGlyph(self)
+            setThirst("(＾▽＾)")
+          },
         },
       }),
       new BoardCoordinate(20, 7)
     )
+    // boardRef.current.placeGlyph(
+    //   new Glyph({
+    //     string: "水",
+    //     description: "dog",
+    //     actionsReceivable: {
+    //       drink: (self) => {
+    //         boardRef.current.removeGlyph(self)
+    //         setThirst("(＾▽＾)")
+    //       },
+    //     },
+    //   }),
+    //   new BoardCoordinate(22, 15)
+    // )
   }
   boardRef.current.onBoardChange = (boardString) => {
     console.log(boardString)
@@ -702,14 +776,13 @@ export default function WorldMap() {
         <pre>{JSON.stringify({ ...event, type: undefined }, undefined, 2)}</pre>
       </span>
     )
-    setNotification(notificationElement)
     /**
      * @todo Need to prevent these toasts in production env
      * @todo style with arne16
      */
-    toast(notificationElement, {
-      style: { width: "max-content" },
-    })
+    // toast(notificationElement, {
+    //   style: { width: "max-content" },
+    // })
 
     switch (event.type) {
       case "glyphMoveBlocked":
@@ -822,11 +895,13 @@ export default function WorldMap() {
                   switch (event.key) {
                     // @ts-expect-error - intentional fall through
                     case "Enter":
-                      toast(textActionInputValue)
-                      boardRef.current.submitAction(textActionInputValue)
+                      const textAction = textActionInputValue.split(" ")[0]
+                      const name = textActionInputValue.split(" ")[1]
+                      boardRef.current.submitAction(textAction, name)
                     case "Escape":
                       setTextActionInputValue("")
                       boardDisplayElementRef.current?.focus()
+                      boardRef.current.deselectGlyph()
                   }
                 }}
                 onChange={(event) =>
@@ -841,10 +916,10 @@ export default function WorldMap() {
           <div className='ml-auto'>
             <div>Hunger: {hunger}</div>
             <div>Thirst: {thirst}</div>
-            {/* {notification} */}
           </div>
         </div>
       </div>
+      {selectedGlyph?.description}
 
       <ToastContainer theme='dark' newestOnTop />
     </>
