@@ -1,5 +1,6 @@
 // @refresh reset
 
+import 'animate.css'
 import { JSX, useCallback, useEffect, useRef, useState } from "react"
 import { toast, ToastContainer } from "react-toastify"
 
@@ -14,10 +15,10 @@ import { toast, ToastContainer } from "react-toastify"
  * Hard code actions results (callbacks) first
  * but may eventually generalize to make
  * writing boards / scenarios easer
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * @todo Glitch effect on selected glyph for submitting incorrect action
  */
 
@@ -319,26 +320,26 @@ type coordPrimitive = `${bigint}, ${bigint}`
 
 type BoardNotifyEvent =
   | {
-      type: "glyphSelected"
-      glyph: Glyph
-    }
+    type: "glyphSelected"
+    glyph: Glyph
+  }
   | {
-      type: "glyphMoveBlocked"
-      occupyingGlyph: Glyph
-      failedToMoveGlyph: Glyph
-    }
+    type: "glyphMoveBlocked"
+    occupyingGlyph: Glyph
+    failedToMoveGlyph: Glyph
+  }
   | {
-      type: "glyphDeselected"
-      glyph: Glyph
-    }
+    type: "glyphDeselected"
+    glyph: Glyph
+  }
   | {
-      type: "requestActionBySelectedGlyph"
-      glyph: Glyph
-    }
+    type: "requestActionBySelectedGlyph"
+    glyph: Glyph
+  }
   | {
-      type: "cancelRequestActionBySelectedGlyph"
-      glyph: Glyph
-    }
+    type: "cancelRequestActionBySelectedGlyph"
+    glyph: Glyph
+  }
 class Board {
   onBoardChange: (boardString: string) => void = () => {
     /** noop */
@@ -358,8 +359,13 @@ class Board {
       name === this.#selectedGlyph.name.english
     ) {
       this.#selectedGlyph.actionsReceivable[actionText](this.#selectedGlyph)
+      return true
     } else {
-      /** empty for now */
+      this.onNotify({
+        type: "requestActionBySelectedGlyph",
+        glyph: this.#selectedGlyph,
+      })
+      return false
     }
   }
 
@@ -451,12 +457,12 @@ class Board {
             occupyingGlyph,
             failedToMoveGlyph,
           })
-          ;(isPlayer && (this.#selectedGlyph = occupyingGlyph),
-            this.onNotify({ type: "glyphSelected", glyph: occupyingGlyph }),
-            this.onNotify({
-              type: "requestActionBySelectedGlyph",
-              glyph: occupyingGlyph,
-            }))
+            ; (isPlayer && (this.#selectedGlyph = occupyingGlyph),
+              this.onNotify({ type: "glyphSelected", glyph: occupyingGlyph }),
+              this.onNotify({
+                type: "requestActionBySelectedGlyph",
+                glyph: occupyingGlyph,
+              }))
           return false
           break
       }
@@ -655,8 +661,8 @@ class Board {
     glyph.indexInBoardString =
       // Width + 1 char for new line
       (WIDTH + 1) *
-        // * number of lines above line of glyph
-        (coordObj.y - 1) +
+      // * number of lines above line of glyph
+      (coordObj.y - 1) +
       // + partial line - 1 for index starting at 0
       coordObj.x -
       1
@@ -712,6 +718,8 @@ export default function WorldMap() {
   const [selectedGlyph, setSelectedGlyph] = useState<Glyph | null>(null)
   const [showTextInput, setShowTextInput] = useState(false)
   const [textActionInputValue, setTextActionInputValue] = useState("")
+  const [textInputAnimateClassName, setTextInputAnimateClassName] = useState("")
+
 
   const [hunger, setHunger] = useState("（>﹏<）")
   const [thirst, setThirst] = useState("（>﹏<）")
@@ -727,7 +735,7 @@ export default function WorldMap() {
         description: "A giant cauldron filled with a fluffy white substance.",
         actionsReceivable: {
           eat: (self) => {
-            // debugger
+
             boardRef.current.removeGlyph(self)
             setHunger("(＾▽＾)")
           },
@@ -857,7 +865,8 @@ export default function WorldMap() {
 
           break
       }
-      // Stop this event from entering text when we switch to the text input
+      // Stop this event from entering text when we switch to the text
+      /** @todo This breaks e.g. ctrl + r */
       event.preventDefault()
     }, [])
 
@@ -890,18 +899,27 @@ export default function WorldMap() {
           <div>
             {showTextInput && (
               <input
+                className={'bg-arne16-void m-1 ' + textInputAnimateClassName}
+                onAnimationEnd={(event) => {
+                  setTextInputAnimateClassName('')
+                }}
                 value={textActionInputValue}
                 onKeyDown={(event) => {
                   switch (event.key) {
-                    // @ts-expect-error - intentional fall through
                     case "Enter":
                       const textAction = textActionInputValue.split(" ")[0]
                       const name = textActionInputValue.split(" ")[1]
-                      boardRef.current.submitAction(textAction, name)
+                      if (boardRef.current.submitAction(textAction, name)) {
+                        boardDisplayElementRef.current?.focus()
+                      } else {
+                        setTextInputAnimateClassName('animate__animated animate__headShake')
+                      }
+                      setTextActionInputValue("")
+
+                      break
                     case "Escape":
                       setTextActionInputValue("")
                       boardDisplayElementRef.current?.focus()
-                      boardRef.current.deselectGlyph()
                   }
                 }}
                 onChange={(event) =>
@@ -909,7 +927,6 @@ export default function WorldMap() {
                 }
                 ref={textInputElementRef}
                 type='text'
-                className='bg-arne16-void m-1'
               />
             )}
           </div>
