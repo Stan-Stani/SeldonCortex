@@ -1,0 +1,19 @@
+<h1>Why aren&#39;t we shipping faster now?</h1>
+<p>Notes on Christian Bird&#39;s talk <a href="https://cabird.com/talks/shipping-faster/">Why aren&#39;t we shipping faster now?</a> (<a href="https://youtu.be/0wumMeZsNsI">YouTube</a>). I recommend watching the video at 1.5x speed.</p>
+<p><img src="blog/shipping-faster/unshipped.png" alt="Illustration from the talk: five pipes of &quot;new code&quot; pour into a tank of &quot;unshipped&quot; code, which drains through a single &quot;review&quot; filter tended by one person."></p>
+<p>Basically the gist is that while coding agents have made code cheaper, all the other parts of releasing are now the significant bottlenecks.</p>
+<p>Some interesting takeaways:</p>
+<ul>
+<li>Human reviewers tend to be good at finding maintainability bugs, whereas agents are good at finding severe and reliability bugs. (Reliability bugs here meaning something like &quot;the system performs worse with more load&quot;)</li>
+<li>We need to improve the code review process (which Bird says hasn&#39;t fundamentally changed since the 70s) to help with the code review bottleneck.</li>
+<li>&quot;Developers lack the time necessary to develop the skills that would save time.&quot; The table below gives some of their possible solutions:</li>
+</ul>
+<p><img src="blog/shipping-faster/interventions.png" alt="Table 2, Evidence-Based Team Interventions for AI Tool Adoption: clear organizational messaging, AI tool champions, context-specific use cases, knowledge sharing infrastructure, protected learning time, and collaborative sessions."></p>
+<p>I think the papers referenced in the video have the real meat:</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2507.21280">&quot;Maybe We Need Some More Examples&quot;: Individual and Team Drivers of Developer GenAI Tool Use</a> (source of the quote and table above)</li>
+<li><a href="https://arxiv.org/abs/2610.13668">(When) Should a Software Factory Be Lights-Off? Benchmarking Code Review Agents on Bug Detection</a></li>
+<li><a href="https://www.nber.org/papers/w35275">Writing Code vs. Shipping Code: Productivity Effects Across Generations of AI Coding Tools</a></li>
+<li><a href="https://arxiv.org/abs/2610.23708">&quot;To Boldly Go Where No One Has Gone Before&quot;: What Has AI Let Developers Unlock?</a></li>
+<li><a href="https://arxiv.org/abs/2607.00533">You Shall Not Pass! Where and Why Developers Draw the Line on AI Autonomy</a></li>
+</ul>
